@@ -1,0 +1,16 @@
+﻿#pragma once
+#include <d3d11.h>
+#include <string>
+#include "renderer.h"
+using namespace DirectX;
+#include "debug_ostream.h"
+#include "scene.h"
+
+ID3D11ShaderResourceView* LoadTexture(const wchar_t* texpass);
+ID3D11ShaderResourceView* LoadTexture(const std::wstring& texpass);
+ID3D11ShaderResourceView* LoadTextureLinear(const wchar_t* texpass);
+ID3D11ShaderResourceView* LoadTextureLinear(const std::wstring& texpass);
+
+void ReleaseTexturesForScene(SCENE scene);
+void ReleaseAllTextures();
+void UpdateTextureCache();

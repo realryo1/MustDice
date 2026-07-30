@@ -1,0 +1,50 @@
+﻿#include "result.h"
+#include "define.h"
+#include "font.h"
+#include "input_manager.h"
+#include "fade.h"
+#include "scene.h"
+
+using namespace DirectX;
+
+static FontRenderer* g_pResultText = nullptr;
+static FontRenderer* g_pHintText = nullptr;
+
+void Result_Initialize(void)
+{
+	g_pResultText = new FontRenderer(
+		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 40.0f },
+		48.0f,
+		0.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		"RESULT"
+	);
+
+	g_pHintText = new FontRenderer(
+		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 40.0f },
+		28.0f,
+		0.0f,
+		{ 0.8f, 0.8f, 0.8f, 1.0f },
+		"ああああ Press A 「タイトルに戻る」"
+	);
+}
+
+void Result_Update(void)
+{
+	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
+	{
+		SetSceneFade(SCENE_TITLE);
+	}
+}
+
+void Result_Draw(void)
+{
+	if (g_pResultText) g_pResultText->Draw();
+	if (g_pHintText) g_pHintText->Draw();
+}
+
+void Result_Finalize(void)
+{
+	SAFE_DELETE(g_pResultText);
+	SAFE_DELETE(g_pHintText);
+}

@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (Run Only)",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "Build & Run Debug"
+        },
+        {
+            "name": "Release (Run Only)",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "Build & Run Release"
+        }
+    ]
+}
