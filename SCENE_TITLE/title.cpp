@@ -41,8 +41,10 @@ void Title_Update(void)
 
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
-		SetSceneFade(SCENE_GAME);
+		SetSceneFade(SCENE_DEBUG);
 	}
+
+	g_pTitleText->AddRot(360.0f * (1.0f / FPS * 2));
 }
 
 void Title_Draw(void)

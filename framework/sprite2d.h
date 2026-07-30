@@ -61,7 +61,7 @@ public:
 	}
 
 	XMFLOAT4 GetColor(void) const { return m_Color; }
-	void SetColor(const XMFLOAT4& color) { m_Color = color; }
+	void SetColor(const XMFLOAT4& color) { m_Color = color; RequestRedraw(); }
 	BLENDSTATE GetBlendState(void) const { return m_BlendState; }
 	ID3D11ShaderResourceView* GetTexture(void) const { return m_Texture; }
 	FLIPTYPE2D GetFlipType(void) const { return m_FlipType; }

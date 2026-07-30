@@ -59,6 +59,8 @@ long long g_UpdateTime = 0;
 long long g_DrawTime = 0;
 wchar_t g_DebugStr[2048];
 static int g_TargetFPS = FPS;  // 目標FPS（デフォルトは FPS マクロの値）
+static bool g_RequestRedraw = true; // 起動直後は必ず1回描画する
+static int g_StartupWarmupPresents = 8; // 起動直後の冷えた Draw を暗転なしで消化する
 int pad;//未接続:-1、接続中:0
 
 #pragma comment(lib, "winmm.lib")
@@ -76,6 +78,32 @@ void SetFPS(int fps)
 
 int GetGamePad() {
 	return pad;
+}
+
+void RequestRedraw(void)
+{
+	g_RequestRedraw = true;
+}
+
+// 変化のない静止シーンは Clear/Present を間引き、GPU を休ませる
+static bool NeedsPresent(void)
+{
+	if (g_StartupWarmupPresents > 0) {
+		return true;
+	}
+	if (g_RequestRedraw) {
+		return true;
+	}
+	if (GetFadeState() != FADE_NONE) {
+		return true;
+	}
+#if defined(_DEBUG)
+	// デバッグシーンは ImGui / カメラ等で毎フレーム変化する
+	if (GetScene() == SCENE_DEBUG) {
+		return true;
+	}
+#endif
+	return false;
 }
 
 //==================================
@@ -311,9 +339,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			}
 			updateCount += steps; // 今回のループで実行した論理ステップ数を加算
 
-			if (steps > 0)
+			if (steps > 0 && NeedsPresent())
 			{
-				// 描画時間の計測
+				// 描画時間の計測（Present/VSync 待ちは含めない）
 				auto startDraw = std::chrono::high_resolution_clock::now();
 
 				// ImGui フレーム開始（Draw 内の ImGui::* 呼び出しより前に必須）
@@ -329,15 +357,44 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				SetDepthEnable(false);
 				Fade_Draw();
 
-				// ImGui 描画（Present 前にバックバッファへ反映）
+				// ImGui 描画（頂点が無いフレームは GPU へ送らない）
 				ImGui::Render();
-				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+				ImDrawData* drawData = ImGui::GetDrawData();
+				if (drawData && drawData->TotalVtxCount > 0)
+				{
+					ImGui_ImplDX11_RenderDrawData(drawData);
+				}
 
-				Present();//バッファの表示
 				auto endDraw = std::chrono::high_resolution_clock::now();
 				g_DrawTime = std::chrono::duration_cast<std::chrono::microseconds>(endDraw - startDraw).count();
 
+				Present();//バッファの表示（VSync 待ちはここ）
+				g_RequestRedraw = false;
+				if (g_StartupWarmupPresents > 0)
+				{
+					g_StartupWarmupPresents--;
+				}
 				frameCount++; // Present() 1回 = 描画1フレーム
+			}
+			else
+			{
+				// Present していないフレームは前回の冷えた計測値を引きずるので 0 にする
+				g_DrawTime = 0;
+
+				// 論理ステップ待ち、または静止シーンで Present 不要なときの空回し防止
+				const double remaining = FIXED_STEP - accumulator;
+				if (remaining > 0.002)
+				{
+					DWORD sleepMs = (DWORD)((remaining - 0.001) * 1000.0);
+					if (sleepMs > 0)
+					{
+						Sleep(sleepMs);
+					}
+				}
+				else
+				{
+					Sleep(0); // 残り僅かのときは他スレッドへ譲る
+				}
 			}
 
 #if defined(_DEBUG)
@@ -409,8 +466,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			unsigned int newH = HIWORD(lParam);
 			Direct3D_ResizeWindow(newW, newH);
 			Direct3D_Resize(newW, newH); // バックバッファをウィンドウサイズ（ネイティブ解像度）に合わせる
+			RequestRedraw();
 		}
 		break;
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+		RequestRedraw();
+		return 0;
+	}
 	case WM_SYSKEYDOWN:
 		// Alt+Enterキーの全画面切り替え無効化（手動制御に変更）
 		if (wParam == VK_RETURN && (lParam & 0x20000000))

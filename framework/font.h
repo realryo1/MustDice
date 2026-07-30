@@ -62,18 +62,36 @@ public:
 		if (m_Color.x != color.x || m_Color.y != color.y || m_Color.z != color.z || m_Color.w != color.w) {
 			m_Color = color;
 			UpdateAtlasTexture();
+			m_MeshDirty = true;
+			RequestRedraw();
 		}
 	}
 	virtual void SetText(const std::string& text);
 	XMFLOAT4 GetColor() const { return m_Color; }
 
-	void SetAlignment(TextAlignment align) { m_Alignment = align; }
+	void SetAlignment(TextAlignment align) {
+		if (m_Alignment != align) {
+			m_Alignment = align;
+			m_MeshDirty = true;
+			RequestRedraw();
+		}
+	}
 	TextAlignment GetAlignment() const { return m_Alignment; }
 
 	// テキスト中のグリフを事前にアトラスへ登録（描画時のスタッター防止）
 	void PreCacheGlyphs();
 
+protected:
+	void InvalidateMesh() { m_MeshDirty = true; }
+
 private:
+	struct FontVertex {
+		XMFLOAT3 position;
+		XMFLOAT3 normal;
+		XMFLOAT4 color;
+		XMFLOAT2 texCoord;
+	};
+
 	ID3D11Texture2D* m_pTexture;
 	ID3D11ShaderResourceView* m_pSRV;
 	ID3D11Buffer* m_pVertexBuffer;
@@ -83,11 +101,13 @@ private:
 	float m_FontSize;                         // フォントサイズ（ピクセル）
 	TextAlignment m_Alignment;                // アライメント
 
-	UINT m_VertexCount;
+	UINT m_VertexCount;                       // バッチ済み頂点数（三角形リスト）
+	UINT m_VertexCapacity;                    // 頂点バッファ容量（頂点数）
 	std::map<int, CharInfo> m_CharCache;      // グリフIDからCharInfo への マッピング
 	std::deque<int> m_CacheLRU;               // LRU キャッシュ用キュー
 
-	unsigned char* m_pAtlasData;              // アトラスバッファ
+	unsigned char* m_pAtlasData;              // アトラスバッファ（A）
+	unsigned char* m_pAtlasRGBA;              // アップロード用スクラッチ（RGBA）
 	int m_AtlasWidth;
 	int m_AtlasHeight;
 	int m_AtlasNextX;                         // 次のグリフを配置するX位置
@@ -98,6 +118,12 @@ private:
 	int m_FontAscender;
 	int m_FontDescender;
 
+	// メッシュキャッシュ（テキスト／姿勢が変わったときだけ再構築）
+	bool m_MeshDirty;
+	XMFLOAT2 m_CachedPos;
+	float m_CachedRot;
+	XMFLOAT2 m_CachedScale;
+
 	// ヘルパー関数
 	bool CreateShaders();
 	bool BakeAtlas();
@@ -107,6 +133,8 @@ private:
 	int UTF8ToCodePoint(const std::string& text, size_t& index);
 	void UpdateAtlasTexture();
 	bool EnsurePixelSize();
+	bool EnsureVertexCapacity(UINT vertexCount);
+	void RebuildMesh();
 	float GetKerningPx(int prevGlyph, int glyphIndex) const;
 	float GetGlyphAdvancePx(int glyphIndex);
 

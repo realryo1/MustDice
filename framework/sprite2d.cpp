@@ -103,6 +103,11 @@ bool ClickSprite2D::IsClick()
 //----------------------------
 void Sprite_Single_Draw(XMFLOAT2 pos, XMFLOAT2 size, float rot, XMFLOAT4 color, BLENDSTATE bstate, ID3D11ShaderResourceView* texture, FLIPTYPE2D flipType, SHADERTYPE shadertype)
 {
+	// 完全透明は GPU に渡さない（フェード待機中の全画面クアッド対策）
+	if (color.w <= 0.0f) {
+		return;
+	}
+
 	// 頂点レイアウトとシェーダーのセット
 	GetDeviceContext()->IASetInputLayout(GetShader(shadertype)->GetVertexLayout());
 	GetDeviceContext()->VSSetShader(GetShader(shadertype)->GetVertexShader(), NULL, 0);
@@ -184,6 +189,10 @@ void Sprite_Single_Draw(XMFLOAT2 pos, XMFLOAT2 size, float rot, XMFLOAT4 color, 
 //----------------------------
 void Sprite_Split_Draw(XMFLOAT2 pos, XMFLOAT2 size, float rot, XMFLOAT4 color, BLENDSTATE bstate, ID3D11ShaderResourceView* texture, int divideX, int divideY, int textureNumber, SHADERTYPE shadertype)
 {
+	if (color.w <= 0.0f) {
+		return;
+	}
+
 	g_pDevice = GetDevice();
 	g_pContext = GetDeviceContext();
 

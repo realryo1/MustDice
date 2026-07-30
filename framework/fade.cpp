@@ -187,9 +187,14 @@ void Fade_Update(void)
 
 void Fade_Draw(void)
 {
-	if (g_pFade) {
-		g_pFade->Draw();
+	if (!g_pFade) {
+		return;
 	}
+	// α=0 の全画面スプライトは毎ピクセルαブレンドだけして負荷になるので描かない
+	if (g_pFade->GetColor().w <= 0.0f) {
+		return;
+	}
+	g_pFade->Draw();
 }
 
 void Fade_Finalize(void)

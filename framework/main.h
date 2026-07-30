@@ -46,3 +46,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 // FPS設定関数
 void SetFPS(int fps);
 int GetGamePad();
+
+// 次フレームの描画を要求（静止シーンの間引き解除用）
+void RequestRedraw(void);

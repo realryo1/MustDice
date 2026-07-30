@@ -25,25 +25,23 @@ RebuildLayout();
 
 void MultiLineFontRenderer::Draw()
 {
-	RebuildLayout();
+	const XMFLOAT2 originalPos = GetPos();
 
-const XMFLOAT2 originalPos = GetPos();
+	for (size_t i = 0; i < m_Lines.size(); ++i)
+	{
+		const std::string& line = m_Lines[i];
+		if (line.empty())
+		{
+			continue;
+		}
 
-for (size_t i = 0; i < m_Lines.size(); ++i)
-{
-const std::string& line = m_Lines[i];
-if (line.empty())
-{
-continue;
-}
+		SetPos({ originalPos.x, originalPos.y + static_cast<float>(i) * m_FontSize * m_LineSpacing * GetScaleY() });
+		FontRenderer::SetText(line);
+		FontRenderer::Draw();
+	}
 
-SetPos({ originalPos.x, originalPos.y + static_cast<float>(i) * m_FontSize * m_LineSpacing * GetScaleY() });
-FontRenderer::SetText(line);
-FontRenderer::Draw();
-}
-
-SetPos(originalPos);
-FontRenderer::SetText(m_SourceText);
+	SetPos(originalPos);
+	FontRenderer::SetText(m_SourceText);
 }
 
 void MultiLineFontRenderer::SetText(const std::string& text)

@@ -9,6 +9,7 @@
 #include "debugscene.h"
 #endif
 #include "define.h"
+#include "main.h"
 #include <Windows.h>
 using namespace DirectX;
 
@@ -151,6 +152,7 @@ void SetScene( SCENE id )
 	scene = id;
 
 	Init();
+	RequestRedraw();
 }
 
 SCENE GetScene( void )
