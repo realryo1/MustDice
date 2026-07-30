@@ -478,6 +478,9 @@
     <None Include="document\multiline_font_renderer_usage.md">
       <Filter>マークダウン</Filter>
     </None>
+    <None Include="readme.md">
+      <Filter>マークダウン</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MustDice.rc">

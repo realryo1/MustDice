@@ -282,6 +282,7 @@
     <None Include="document\multiline_click_font_usage.md" />
     <None Include="document\multiline_font_renderer_usage.md" />
     <None Include="framework\DirectXTex.inl" />
+    <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\Common.hlsl">
