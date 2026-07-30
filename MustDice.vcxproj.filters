@@ -64,7 +64,7 @@
     <ClCompile Include="framework\MultiLineClickFont.cpp">
       <Filter>フレームワーク\2D</Filter>
     </ClCompile>
-    <ClCompile Include="framework\MultiLineFontRenderer.cpp">
+    <ClCompile Include="framework\MultiLineDrawFont.cpp">
       <Filter>フレームワーク\2D</Filter>
     </ClCompile>
     <ClCompile Include="framework\imgui\imgui.cpp">
@@ -198,7 +198,7 @@
     <ClInclude Include="framework\MultiLineClickFont.h">
       <Filter>フレームワーク\2D</Filter>
     </ClInclude>
-    <ClInclude Include="framework\MultiLineFontRenderer.h">
+    <ClInclude Include="framework\MultiLineDrawFont.h">
       <Filter>フレームワーク\2D</Filter>
     </ClInclude>
     <ClInclude Include="framework\imgui\imconfig.h">

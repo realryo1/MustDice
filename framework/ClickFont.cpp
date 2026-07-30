@@ -45,7 +45,7 @@ namespace
 
 ClickFont::ClickFont(XMFLOAT2 pos, float fontSize, float rotation,
 	XMFLOAT4 normalColor, XMFLOAT4 hoverColor, const std::string& text)
-	: FontRenderer(pos, fontSize, rotation, normalColor, text)
+	: DrawFont(pos, fontSize, rotation, normalColor, text)
 	, m_NormalColor(normalColor)
 	, m_HoverColor(hoverColor)
 	, m_HitSize({ fontSize * 0.5f * CountUtf8CodePoints(text), fontSize * 1.5f })

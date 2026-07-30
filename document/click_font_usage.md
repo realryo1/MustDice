@@ -1,7 +1,7 @@
 # ClickFont 使い方
 
 ## 概要
-ClickFont は FontRenderer を継承したクリック可能テキストです（`framework/ClickFont.h`）。
+ClickFont は DrawFont を継承したクリック可能テキストです（`framework/ClickFont.h`）。
 ホバー色切り替えとクリック検知を 1 行テキスト向けに提供します。
 
 ## 主な API
@@ -10,7 +10,7 @@ ClickFont は FontRenderer を継承したクリック可能テキストです�
 - 更新
   - `Update()`
 - 描画
-  - `Draw()`（基底の FontRenderer::Draw）
+  - `Draw()`（基底の DrawFont::Draw）
 - 状態取得
   - `IsHover()` / `IsClick()`
 - 当たり判定サイズ調整

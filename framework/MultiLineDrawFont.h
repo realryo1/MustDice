@@ -16,12 +16,12 @@ float right;
 float bottom;
 };
 
-class MultiLineFontRenderer : public FontRenderer
+class MultiLineDrawFont : public DrawFont
 {
 public:
-MultiLineFontRenderer(XMFLOAT2 pos, float fontSize, float rotation,
+MultiLineDrawFont(XMFLOAT2 pos, float fontSize, float rotation,
 XMFLOAT4 color, const std::string& text, float lineSpacing = 1.5f, TextAlignment align = TA_MIDDLE);
-~MultiLineFontRenderer() = default;
+~MultiLineDrawFont() = default;
 
 void Draw() override;
 void SetText(const std::string& text) override;

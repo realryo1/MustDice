@@ -1,12 +1,12 @@
-# MultiLineFontRenderer 使い方
+# MultiLineDrawFont 使い方
 
 ## 概要
-MultiLineFontRenderer は FontRenderer を継承した複数行描画クラスです（`framework/MultiLineFontRenderer.h`）。
+MultiLineDrawFont は DrawFont を継承した複数行描画クラスです（`framework/MultiLineDrawFont.h`）。
 テキスト中の `\n` で行分割し、行間設定と行矩形取得に対応します。
 
 ## 主な API
 - コンストラクタ
-  - `MultiLineFontRenderer(XMFLOAT2 pos, float fontSize, float rotation, XMFLOAT4 color, const std::string& text, float lineSpacing = 1.5f, TextAlignment align = TA_MIDDLE)`
+  - `MultiLineDrawFont(XMFLOAT2 pos, float fontSize, float rotation, XMFLOAT4 color, const std::string& text, float lineSpacing = 1.5f, TextAlignment align = TA_MIDDLE)`
 - 描画
   - `Draw()`
 - テキスト変更
@@ -20,13 +20,13 @@ MultiLineFontRenderer は FontRenderer を継承した複数行描画クラス�
 
 ## 最小サンプル
 ```cpp
-#include "MultiLineFontRenderer.h"
+#include "MultiLineDrawFont.h"
 
-static MultiLineFontRenderer* g_pMulti = nullptr;
+static MultiLineDrawFont* g_pMulti = nullptr;
 
 void Sample_Initialize()
 {
-	g_pMulti = new MultiLineFontRenderer(
+	g_pMulti = new MultiLineDrawFont(
 		{ SCREEN_WIDTH * 0.5f, 140.0f },
 		30.0f,
 		0.0f,

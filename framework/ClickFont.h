@@ -13,7 +13,7 @@
 
 using namespace DirectX;
 
-class ClickFont : public FontRenderer
+class ClickFont : public DrawFont
 {
 public:
 	ClickFont(XMFLOAT2 pos, float fontSize, float rotation,

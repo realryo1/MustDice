@@ -198,7 +198,7 @@
     <ClCompile Include="framework\main.cpp" />
     <ClCompile Include="framework\model.cpp" />
     <ClCompile Include="framework\MultiLineClickFont.cpp" />
-    <ClCompile Include="framework\MultiLineFontRenderer.cpp" />
+    <ClCompile Include="framework\MultiLineDrawFont.cpp" />
     <ClCompile Include="framework\movie.cpp" />
     <ClCompile Include="framework\sound.cpp" />
     <ClCompile Include="framework\sprite2d.cpp" />
@@ -254,7 +254,7 @@
     <ClInclude Include="framework\main.h" />
     <ClInclude Include="framework\model.h" />
     <ClInclude Include="framework\MultiLineClickFont.h" />
-    <ClInclude Include="framework\MultiLineFontRenderer.h" />
+    <ClInclude Include="framework\MultiLineDrawFont.h" />
     <ClInclude Include="framework\movie.h" />
     <ClInclude Include="framework\sound.h" />
     <ClInclude Include="framework\sprite2d.h" />

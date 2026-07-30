@@ -30,7 +30,7 @@ using namespace DirectX;
 #endif
 
 // ==========================================
-// グローバルフォントデータ（全 FontRenderer で共有）
+// グローバルフォントデータ（全 DrawFont で共有）
 // ==========================================
 static unsigned char* g_pGlobalFontData = nullptr;
 static int g_GlobalFontDataSize = 0;
@@ -104,10 +104,10 @@ void Font_FinalizeGlobalData()
 }
 
 // ==========================================
-// FontRenderer クラス実装
+// DrawFont クラス実装
 // ==========================================
 
-FontRenderer::FontRenderer(XMFLOAT2 pos, float fontSize, float rotation,
+DrawFont::DrawFont(XMFLOAT2 pos, float fontSize, float rotation,
 	XMFLOAT4 color, const std::string& text, TextAlignment align)
 	: Transform2D(pos, rotation, { 1.0f, 1.0f }), m_Color(color), m_Text(text),
 	m_FontSize(fontSize), m_Alignment(align),
@@ -134,7 +134,7 @@ FontRenderer::FontRenderer(XMFLOAT2 pos, float fontSize, float rotation,
 	PreCacheGlyphs();
 }
 
-FontRenderer::~FontRenderer() {
+DrawFont::~DrawFont() {
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pSRV) m_pSRV->Release();
 	if (m_pTexture) m_pTexture->Release();
@@ -142,11 +142,11 @@ FontRenderer::~FontRenderer() {
 	if (m_pAtlasRGBA) free(m_pAtlasRGBA);
 }
 
-bool FontRenderer::CreateShaders() {
+bool DrawFont::CreateShaders() {
 	return true;
 }
 
-bool FontRenderer::EnsurePixelSize() {
+bool DrawFont::EnsurePixelSize() {
 	if (!g_FtFace) {
 		return false;
 	}
@@ -165,7 +165,7 @@ bool FontRenderer::EnsurePixelSize() {
 	return true;
 }
 
-float FontRenderer::GetKerningPx(int prevGlyph, int glyphIndex) const {
+float DrawFont::GetKerningPx(int prevGlyph, int glyphIndex) const {
 	if (!g_FtFace || prevGlyph <= 0 || glyphIndex <= 0) {
 		return 0.0f;
 	}
@@ -178,7 +178,7 @@ float FontRenderer::GetKerningPx(int prevGlyph, int glyphIndex) const {
 	return (float)delta.x / 64.0f;
 }
 
-float FontRenderer::GetGlyphAdvancePx(int glyphIndex) {
+float DrawFont::GetGlyphAdvancePx(int glyphIndex) {
 	auto it = m_CharCache.find(glyphIndex);
 	if (it != m_CharCache.end()) {
 		return it->second.xadvance;
@@ -193,7 +193,7 @@ float FontRenderer::GetGlyphAdvancePx(int glyphIndex) {
 	return (it != m_CharCache.end()) ? it->second.xadvance : 0.0f;
 }
 
-bool FontRenderer::BakeAtlas() {
+bool DrawFont::BakeAtlas() {
 	ID3D11Device* pDevice = GetDevice();
 
 	if (!pDevice) {
@@ -278,7 +278,7 @@ bool FontRenderer::BakeAtlas() {
 	return true;
 }
 
-int FontRenderer::UTF8ToCodePoint(const std::string& text, size_t& index) {
+int DrawFont::UTF8ToCodePoint(const std::string& text, size_t& index) {
 	unsigned char c = (unsigned char)text[index];
 
 	if ((c & 0x80) == 0) {
@@ -308,7 +308,7 @@ int FontRenderer::UTF8ToCodePoint(const std::string& text, size_t& index) {
 	return 0;
 }
 
-bool FontRenderer::AddGlyphToAtlas(int glyphIndex) {
+bool DrawFont::AddGlyphToAtlas(int glyphIndex) {
 	if (!m_Ready || !g_FtFace) {
 		return false;
 	}
@@ -382,7 +382,7 @@ bool FontRenderer::AddGlyphToAtlas(int glyphIndex) {
 	return true;
 }
 
-bool FontRenderer::AddGlyphToAtlasBatch(int glyphIndex) {
+bool DrawFont::AddGlyphToAtlasBatch(int glyphIndex) {
 	if (!m_Ready || !g_FtFace) {
 		return false;
 	}
@@ -455,7 +455,7 @@ bool FontRenderer::AddGlyphToAtlasBatch(int glyphIndex) {
 	return true;
 }
 
-void FontRenderer::EvictLRUGlyph() {
+void DrawFont::EvictLRUGlyph() {
 	if (m_CacheLRU.empty()) {
 		return;
 	}
@@ -465,7 +465,7 @@ void FontRenderer::EvictLRUGlyph() {
 	m_CharCache.erase(lru_glyph);
 }
 
-void FontRenderer::UpdateAtlasTexture() {
+void DrawFont::UpdateAtlasTexture() {
 	ID3D11DeviceContext* pContext = GetDeviceContext();
 	if (!pContext || !m_pTexture || !m_pAtlasData || !m_pAtlasRGBA) {
 		return;
@@ -498,7 +498,7 @@ void FontRenderer::UpdateAtlasTexture() {
 	}
 }
 
-bool FontRenderer::EnsureVertexCapacity(UINT vertexCount) {
+bool DrawFont::EnsureVertexCapacity(UINT vertexCount) {
 	if (vertexCount == 0) {
 		return true;
 	}
@@ -537,7 +537,7 @@ bool FontRenderer::EnsureVertexCapacity(UINT vertexCount) {
 	return true;
 }
 
-void FontRenderer::RebuildMesh() {
+void DrawFont::RebuildMesh() {
 	m_VertexCount = 0;
 	m_MeshDirty = false;
 	m_CachedPos = m_Position;
@@ -688,7 +688,7 @@ void FontRenderer::RebuildMesh() {
 	m_VertexCount = writeIndex;
 }
 
-void FontRenderer::Draw() {
+void DrawFont::Draw() {
 	ID3D11DeviceContext* pContext = GetDeviceContext();
 	ShaderManager* shader = GetShader(S_UNLIT);
 
@@ -735,7 +735,7 @@ void FontRenderer::Draw() {
 	pContext->Draw(m_VertexCount, 0);
 }
 
-void FontRenderer::SetText(const std::string& text) {
+void DrawFont::SetText(const std::string& text) {
 	if (m_Text != text) {
 		m_Text = text;
 		m_MeshDirty = true;
@@ -743,7 +743,7 @@ void FontRenderer::SetText(const std::string& text) {
 	}
 }
 
-void FontRenderer::PreCacheGlyphs() {
+void DrawFont::PreCacheGlyphs() {
 	if (!m_Ready || !g_FtFace) return;
 	if (!EnsurePixelSize()) return;
 

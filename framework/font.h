@@ -48,14 +48,14 @@ void Font_InitializeGlobalData();
 void Font_FinalizeGlobalData();
 
 // フォント管理クラス
-class FontRenderer : public Transform2D
+class DrawFont : public Transform2D
 {
 public:
 	// pos: 基準位置, fontSize: フォントサイズ(px), rotation: 角度(度)
 	// color: 色(R,G,B,A), text: 表示テキスト, align: アライメント
-	FontRenderer(XMFLOAT2 pos, float fontSize, float rotation,
+	DrawFont(XMFLOAT2 pos, float fontSize, float rotation,
 				 XMFLOAT4 color, const std::string& text, TextAlignment align = TA_MIDDLE);
-	~FontRenderer();
+	~DrawFont();
 
 	virtual void Draw();
 	void SetColor(XMFLOAT4 color) {

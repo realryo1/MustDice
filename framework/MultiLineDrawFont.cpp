@@ -1,4 +1,4 @@
-﻿#include "MultiLineFontRenderer.h"
+﻿#include "MultiLineDrawFont.h"
 
 #include <algorithm>
 
@@ -7,9 +7,9 @@ namespace
 constexpr float kFontHitWidthScale = 0.5f;
 }
 
-MultiLineFontRenderer::MultiLineFontRenderer(XMFLOAT2 pos, float fontSize, float rotation,
+MultiLineDrawFont::MultiLineDrawFont(XMFLOAT2 pos, float fontSize, float rotation,
 XMFLOAT4 color, const std::string& text, float lineSpacing, TextAlignment align)
-: FontRenderer(pos, fontSize, rotation, color, text, align)
+: DrawFont(pos, fontSize, rotation, color, text, align)
 , m_SourceText(text)
 , m_FontSize(fontSize)
 , m_LineSpacing((std::max)(lineSpacing, 0.1f))
@@ -17,13 +17,13 @@ XMFLOAT4 color, const std::string& text, float lineSpacing, TextAlignment align)
 RebuildLayout();
 }
 
-void MultiLineFontRenderer::SetAlignment(TextAlignment align)
+void MultiLineDrawFont::SetAlignment(TextAlignment align)
 {
-FontRenderer::SetAlignment(align);
+DrawFont::SetAlignment(align);
 RebuildLayout();
 }
 
-void MultiLineFontRenderer::Draw()
+void MultiLineDrawFont::Draw()
 {
 	const XMFLOAT2 originalPos = GetPos();
 
@@ -36,28 +36,28 @@ void MultiLineFontRenderer::Draw()
 		}
 
 		SetPos({ originalPos.x, originalPos.y + static_cast<float>(i) * m_FontSize * m_LineSpacing * GetScaleY() });
-		FontRenderer::SetText(line);
-		FontRenderer::Draw();
+		DrawFont::SetText(line);
+		DrawFont::Draw();
 	}
 
 	SetPos(originalPos);
-	FontRenderer::SetText(m_SourceText);
+	DrawFont::SetText(m_SourceText);
 }
 
-void MultiLineFontRenderer::SetText(const std::string& text)
+void MultiLineDrawFont::SetText(const std::string& text)
 {
 m_SourceText = text;
-FontRenderer::SetText(text);
+DrawFont::SetText(text);
 RebuildLayout();
 }
 
-void MultiLineFontRenderer::SetLineSpacing(float lineSpacing)
+void MultiLineDrawFont::SetLineSpacing(float lineSpacing)
 {
 m_LineSpacing = (std::max)(lineSpacing, 0.1f);
 RebuildLayout();
 }
 
-void MultiLineFontRenderer::RebuildLayout()
+void MultiLineDrawFont::RebuildLayout()
 {
 m_Lines = SplitLines(m_SourceText);
 m_LineRects.clear();
@@ -89,7 +89,7 @@ m_LineRects.push_back(rect);
 }
 }
 
-std::vector<std::string> MultiLineFontRenderer::SplitLines(const std::string& text) const
+std::vector<std::string> MultiLineDrawFont::SplitLines(const std::string& text) const
 {
 std::vector<std::string> lines;
 std::string current;
@@ -118,7 +118,7 @@ lines.push_back("");
 return lines;
 }
 
-int MultiLineFontRenderer::CountUtf8CodePoints(const std::string& text) const
+int MultiLineDrawFont::CountUtf8CodePoints(const std::string& text) const
 {
 int count = 0;
 for (size_t i = 0; i < text.size();)

@@ -7,12 +7,12 @@
 
 using namespace DirectX;
 
-static FontRenderer* g_pResultText = nullptr;
-static FontRenderer* g_pHintText = nullptr;
+static DrawFont* g_pResultText = nullptr;
+static DrawFont* g_pHintText = nullptr;
 
 void Result_Initialize(void)
 {
-	g_pResultText = new FontRenderer(
+	g_pResultText = new DrawFont(
 		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 40.0f },
 		48.0f,
 		0.0f,
@@ -20,7 +20,7 @@ void Result_Initialize(void)
 		"RESULT"
 	);
 
-	g_pHintText = new FontRenderer(
+	g_pHintText = new DrawFont(
 		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 40.0f },
 		28.0f,
 		0.0f,

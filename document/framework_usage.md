@@ -16,7 +16,7 @@
 8. [Billboard（3D板ポリゴン）](#billboard3d板ポリゴン)
 9. [Movie（動画）](#movie動画)
 10. [Sound（音声）](#sound音声)
-11. [FontRenderer（テキスト描画）](#fontrendererテキスト描画)
+11. [DrawFont（テキスト描画）](#DrawFontテキスト描画)
 12. [Fade（フェード遷移）](#fadeフェード遷移)
 13. [Texture / Light / Transform](#texture--light--transform)
 14. [Input / Keyboard / Mouse / Gamepad](#input--keyboard--mouse--gamepad)
@@ -400,7 +400,7 @@ double sec = GetPlaybackPositionSec(bgm);
 
 ---
 
-## FontRenderer（テキスト描画）
+## DrawFont（テキスト描画）
 
 ヘッダ: `framework/font.h`
 
@@ -410,7 +410,7 @@ double sec = GetPlaybackPositionSec(bgm);
 Font_InitializeGlobalData();
 Font_FinalizeGlobalData();
 
-FontRenderer* label = new FontRenderer(
+DrawFont* label = new DrawFont(
     XMFLOAT2(100.0f, 50.0f),
     32.0f,
     0.0f,
@@ -431,7 +431,7 @@ delete label;
 | クラス | ヘッダ | 用途 | 詳細 |
 | ------ | ------ | ---- | ---- |
 | `ClickFont` | `ClickFont.h` | ホバー／クリック付き 1 行 | [click_font_usage.md](click_font_usage.md) |
-| `MultiLineFontRenderer` | `MultiLineFontRenderer.h` | 複数行テキスト | [multiline_font_renderer_usage.md](multiline_font_renderer_usage.md) |
+| `MultiLineDrawFont` | `MultiLineDrawFont.h` | 複数行テキスト | [multiline_font_renderer_usage.md](multiline_font_renderer_usage.md) |
 | `MultiLineClickFont` | `MultiLineClickFont.h` | 複数行 + クリック | [multiline_click_font_usage.md](multiline_click_font_usage.md) |
 
 ---
@@ -602,7 +602,7 @@ void Title_Finalize(void)
 
 | 項目 | 内容 |
 | ---- | ---- |
-| 対象 | `new` / `delete` した単一オブジェクト（`FontRenderer*` など） |
+| 対象 | `new` / `delete` した単一オブジェクト（`DrawFont*` など） |
 | 効果 | `delete` + ポインタを `nullptr` にクリア |
 | 再呼び出し | 安全（2 回目は何もしない） |
 | 配列 | `new[]` には使わない（`delete[]` が必要） |
