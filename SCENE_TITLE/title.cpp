@@ -7,6 +7,7 @@
 
 using namespace DirectX;
 
+static Sprite2D* g_pNaiyo = nullptr;
 static FontRenderer* g_pTitleText = nullptr;
 static FontRenderer* g_pHintText = nullptr;
 
@@ -27,6 +28,15 @@ void Title_Initialize(void)
 		{ 0.8f, 0.8f, 0.8f, 1.0f },
 		"Press Decide"
 	);
+
+	g_pNaiyo = new Sprite2D(
+		{ 140.0f, 140.0f },
+		{ 200.0f, 200.0f },
+		0.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		BLENDSTATE_NONE,
+		L"asset\\texture\\notfound_thumbnail.png"
+	);
 }
 
 void Title_Update(void)
@@ -35,7 +45,7 @@ void Title_Update(void)
 	//
 	// コントローラー、キーボード双方の入力の実装をやりやすくするため、原則keyboard.hを直接読み取ることはしない
 	// input_manager.hのInput_IsActionDown,Triggerを使用する。
-	// markdown\input.mdを参照のこと。
+	// document\input.mdを参照のこと。
 	//
 	// ==========================================================
 
@@ -44,17 +54,20 @@ void Title_Update(void)
 		SetSceneFade(SCENE_DEBUG);
 	}
 
-	g_pTitleText->AddRot(360.0f * (1.0f / FPS * 2));
+	g_pTitleText->AddRot(360.0f * (1.0f / FPS / 4));
+	g_pNaiyo->AddRot(-360.0f * (1.0f / FPS / 4));
 }
 
 void Title_Draw(void)
 {
 	if (g_pTitleText) g_pTitleText->Draw();
 	if (g_pHintText) g_pHintText->Draw();
+	if (g_pNaiyo) g_pNaiyo->Draw();
 }
 
 void Title_Finalize(void)
 {
 	SAFE_DELETE(g_pTitleText);
 	SAFE_DELETE(g_pHintText);
+	SAFE_DELETE(g_pNaiyo);
 }
