@@ -448,16 +448,34 @@
     <None Include="framework\DirectXTex.inl">
       <Filter>フレームワーク\directx</Filter>
     </None>
-    <None Include="markdown\nonexistent_apis.md">
+    <None Include="document\anim_sprite3d_usage.md">
       <Filter>マークダウン</Filter>
     </None>
-    <None Include="markdown\direct3d_viewport_resize_spec.md">
+    <None Include="document\click_font_usage.md">
       <Filter>マークダウン</Filter>
     </None>
-    <None Include="markdown\shader_vertex_skinning_spec.md">
+    <None Include="document\copylight.md">
       <Filter>マークダウン</Filter>
     </None>
-    <None Include="markdown\anim_sprite3d_usage.md">
+    <None Include="document\direct3d_viewport_resize_spec.md">
+      <Filter>マークダウン</Filter>
+    </None>
+    <None Include="document\font_renderer_usage.md">
+      <Filter>マークダウン</Filter>
+    </None>
+    <None Include="document\framework_usage.md">
+      <Filter>マークダウン</Filter>
+    </None>
+    <None Include="document\input.md">
+      <Filter>マークダウン</Filter>
+    </None>
+    <None Include="document\mouse_camera_implementation_flow.md">
+      <Filter>マークダウン</Filter>
+    </None>
+    <None Include="document\multiline_click_font_usage.md">
+      <Filter>マークダウン</Filter>
+    </None>
+    <None Include="document\multiline_font_renderer_usage.md">
       <Filter>マークダウン</Filter>
     </None>
   </ItemGroup>
@@ -465,10 +483,5 @@
     <ResourceCompile Include="MustDice.rc">
       <Filter>リソース ファイル</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="asset\texture\icon.ico">
-      <Filter>リソース ファイル</Filter>
-    </Image>
   </ItemGroup>
 </Project>

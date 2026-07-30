@@ -271,11 +271,17 @@
     <ClInclude Include="app\version.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="document\anim_sprite3d_usage.md" />
+    <None Include="document\click_font_usage.md" />
+    <None Include="document\copylight.md" />
+    <None Include="document\direct3d_viewport_resize_spec.md" />
+    <None Include="document\font_renderer_usage.md" />
+    <None Include="document\framework_usage.md" />
+    <None Include="document\input.md" />
+    <None Include="document\mouse_camera_implementation_flow.md" />
+    <None Include="document\multiline_click_font_usage.md" />
+    <None Include="document\multiline_font_renderer_usage.md" />
     <None Include="framework\DirectXTex.inl" />
-    <None Include="markdown\anim_sprite3d_usage.md" />
-    <None Include="markdown\direct3d_viewport_resize_spec.md" />
-    <None Include="markdown\nonexistent_apis.md" />
-    <None Include="markdown\shader_vertex_skinning_spec.md" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\Common.hlsl">
