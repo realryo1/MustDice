@@ -376,8 +376,8 @@ delete movie;
 ヘッダ: `framework/sound.h`（XAudio2 + Media Foundation、MP3）
 
 ```cpp
-InitSound();
-UninitSound();
+InitSound();    //main.cppで呼び出し
+UninitSound();  //main.cppで呼び出し
 
 SoundData* bgm = LoadMP3(L"asset/sound/bgm.mp3");
 SoundData* se  = LoadMP3(L"asset/sound/se/kettei.mp3");
