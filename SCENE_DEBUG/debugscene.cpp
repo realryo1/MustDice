@@ -4,6 +4,8 @@
 #include "debug_toon_scene.h"
 #include "keyboard.h"
 #include "mouse.h"
+#include "fade.h"
+#include "scene.h"
 
 using namespace DirectX;
 
@@ -40,6 +42,7 @@ void DebugScene_Update(void)
 	if (Keyboard_IsKeyDownTrigger(KK_ESCAPE))
 	{
 		UnLockMouse();
+		SetSceneFade(SCENE_TITLE);
 	}
 
 	// Tab キーでデバッグシーン切り替え

@@ -13,6 +13,7 @@
 #include "ClickFont.h"
 #include "movie.h"
 #include "camera.h"
+#include "imgui/imgui.h"
 #include <cmath>
 
 using namespace DirectX;
@@ -20,6 +21,7 @@ using namespace DirectX;
 static XMFLOAT3 g_DebugCameraPos = { 0.0f, 0.0f, -5.0f };
 static float g_DebugCameraYaw = 0.0f;
 static float g_DebugCameraPitch = 0.0f;
+static bool g_IsLooking = false;
 
 void DebugCamera_Initialize(DirectX::XMFLOAT3 startPos, float startYaw, float startPitch)
 {
@@ -27,6 +29,8 @@ void DebugCamera_Initialize(DirectX::XMFLOAT3 startPos, float startYaw, float st
 	g_DebugCameraPos = startPos;
 	g_DebugCameraYaw = startYaw;
 	g_DebugCameraPitch = startPitch;
+	g_IsLooking = false;
+	UnLockMouse();
 }
 
 void DebugCamera_Update(void)
@@ -35,8 +39,33 @@ void DebugCamera_Update(void)
 	Mouse_State mouseState;
 	Mouse_GetState(&mouseState);
 
-	g_DebugCameraYaw += static_cast<float>(mouseState.dx) * 0.1f;
-	g_DebugCameraPitch += static_cast<float>(mouseState.dy) * 0.1f;
+	// ImGui 上での右クリックはカメラ操作を開始しない（操作中は継続）
+	const bool imguiBlocksStart =
+		!g_IsLooking &&
+		ImGui::GetCurrentContext() != nullptr &&
+		ImGui::GetIO().WantCaptureMouse;
+
+	const bool wantLook = mouseState.rightButton && !imguiBlocksStart;
+
+	if (wantLook)
+	{
+		if (!g_IsLooking)
+		{
+			// 絶対座標(UI) → 相対座標(視点)へ。切り替わり直後のデルタは捨てる
+			LockMouse();
+			g_IsLooking = true;
+		}
+		else
+		{
+			g_DebugCameraYaw += static_cast<float>(mouseState.dx) * 0.1f;
+			g_DebugCameraPitch += static_cast<float>(mouseState.dy) * 0.1f;
+		}
+	}
+	else if (g_IsLooking)
+	{
+		UnLockMouse();
+		g_IsLooking = false;
+	}
 
 	if (g_DebugCameraPitch > 89.0f) g_DebugCameraPitch = 89.0f;
 	if (g_DebugCameraPitch < -89.0f) g_DebugCameraPitch = -89.0f;
@@ -84,8 +113,6 @@ void DebugCamera_Update(void)
 	if (GetCamera()) {
 		GetCamera()->UpdateView(g_DebugCameraPos, atPos);
 	}
-
-	// カメラ位置のシェーダー送信は削除
 }
 
 void DebugCamera_Draw(void)
@@ -95,4 +122,9 @@ void DebugCamera_Draw(void)
 
 void DebugCamera_Finalize(void)
 {
+	if (g_IsLooking)
+	{
+		UnLockMouse();
+		g_IsLooking = false;
+	}
 }
