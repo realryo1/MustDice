@@ -80,7 +80,7 @@ void Fade::Update()
 		m_Color.w = 1.0f;
 		m_State = FADE_WARMUP;
 		m_WarmupFrames = 6; // 6フレーム空回しして、初回描画（GPU構築）などの負荷を暗転中に消化させる
-		SetScene(m_NextScene);
+		ApplySceneInternal(m_NextScene);
 		break;
 
 	case FADE_WARMUP:

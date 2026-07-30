@@ -29,7 +29,7 @@ DirectX 11のゲーム向けフレームワーク。描画・入力・シーン�
 
 ### デバッグシーン（`SCENE_DEBUG`）
 
-`scene.cpp` の初期値を `SCENE_DEBUG` にするか、`SetScene(SCENE_DEBUG)` / `SetSceneFade(SCENE_DEBUG)` を呼ぶ。
+`scene.cpp` の初期値を `SCENE_DEBUG` にするか、`SetSceneFade(SCENE_DEBUG)` を呼ぶ。
 Releaseビルドでは除外され、Debugシーンには入れなくなる。
 
 

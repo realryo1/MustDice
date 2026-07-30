@@ -135,7 +135,8 @@ void Finalize( void )
 	}
 }
 
-void SetScene( SCENE id )
+// 内部用。シーン遷移は SetSceneFade（fade.h）を使うこと
+void ApplySceneInternal( SCENE id )
 {
 #if !defined(_DEBUG)
 	if (id == SCENE_DEBUG)

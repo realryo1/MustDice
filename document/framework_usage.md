@@ -76,7 +76,7 @@ FinalizeRenderer();
 | `SCENE_DEBUG`  | `debugscene/*` | モデル／ライティング／トゥーン検証。起動時は未使用                  |
 
 
-デバッグへ入るには `scene.cpp` の初期 `scene` を `SCENE_DEBUG` にするか、`SetScene(SCENE_DEBUG)` / `SetSceneFade(SCENE_DEBUG)` を呼ぶ。
+デバッグへ入るには `scene.cpp` の初期 `scene` を `SCENE_DEBUG` にするか、`SetSceneFade(SCENE_DEBUG)` を呼ぶ。
 
 `SCENE_DEBUG` 内は **Tab** でサブシーン循環（MODEL → LIGHTING → TOON）、**Esc** でマウスアンロック。
 

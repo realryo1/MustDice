@@ -13,6 +13,7 @@
 
 using namespace DirectX;
 
+//f2:pos, f:fontsize, f:rot, f4:normalcolor, f4:hovercolor, str:text
 class ClickFont : public DrawFont
 {
 public:
