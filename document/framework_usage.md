@@ -6,187 +6,132 @@
 
 ## 目次
 
-1. [初期化・終了の全体フロー](#初期化・終了の全体フロー)
-2. [シーン構成](#シーン構成)
-3. [Renderer（描画エンジン）](#renderer描画エンジン)
-4. [Camera（カメラ）](#cameraカメラ)
-5. [Sprite2D（2Dスプライト）](#sprite2d2dスプライト)
-6. [Sprite3D（3Dモデル）](#sprite3d3dモデル)
-7. [AnimSprite3D（スケルタルアニメーション）](#animsprite3dスケルタルアニメーション)
-8. [Billboard（3D板ポリゴン）](#billboard3d板ポリゴン)
-9. [Movie（動画）](#movie動画)
-10. [Sound（音声）](#sound音声)
-11. [DrawFont（テキスト描画）](#DrawFontテキスト描画)
-12. [Fade（フェード遷移）](#fadeフェード遷移)
-13. [Texture / Light / Transform](#texture--light--transform)
-14. [Input / Keyboard / Mouse / Gamepad](#input--keyboard--mouse--gamepad)
-15. [デバッグ用ユーティリティ](#デバッグ用ユーティリティ)
-16. [tool（開発用スクリプト）](#tool開発用スクリプト)
-17. [よくある注意点](#よくある注意点)
+1. [かんたんな使い方](#かんたんな使い方)
+1. [input_manager](#input_manager)
+1. [Sprite2D（2Dスプライト）](#sprite2d2dスプライト)
+1. [Sprite3D（3Dモデル）](#sprite3d3dモデル)
+1. [AnimSprite3D（スケルタルアニメーション）](#animsprite3dスケルタルアニメーション)
+1. [Billboard（3D板ポリゴン）](#billboard3d板ポリゴン)
+1. [Movie（動画）](#movie動画)
+1. [Sound（音声）](#sound音声)
+1. [DrawFont（テキスト描画）](#DrawFontテキスト描画)
+1. [Fade（フェード遷移）](#fadeフェード遷移)
+1. [Renderer（描画エンジン）](#renderer描画エンジン)
+1. [Camera（カメラ）](#cameraカメラ)
+1. [Texture / Light / Transform](#texture--light--transform)
+1. [SCENE_DEBUGについて](#SCENE_DEBUGについて)
+1. [デバッグ用ユーティリティ](#デバッグ用ユーティリティ)
+1. [tool（開発用スクリプト）](#tool開発用スクリプト)
+1. [注意点など](#注意点など)
 
 ---
 
-## 初期化・終了の全体フロー
+## かんたんな使い方
 
-`framework/main.cpp` での実際の順序は以下の通り。
+参考用に**title.cpp**にいろいろおいてある。
 
+staticなグローバル変数を宣言
 ```cpp
-// === 初期化 ===
-InitRenderer(hInstance, hWnd, TRUE);
-// ImGui 初期化
-Keyboard_Initialize();
-Mouse_Initialize(hWnd);
-InitSound();
-Input_Initialize();
-InitShader();
-Font_InitializeGlobalData();
-Sprite_Initialize();
-Fade_Initialize();
-Gamepad_Initialize();
-Init();                     // シーン初期化（既定は SCENE_TITLE）
+static Sprite2D* g_pNaiyo = nullptr;
 
-// === 終了 ===
-Finalize();                 // シーン終了
-ReleaseAllTextures();
-ReleaseAllSounds();
-Gamepad_Finalize();
-Input_Finalize();
-UninitSound();
-Fade_Finalize();
-Font_FinalizeGlobalData();
-Sprite_Finalize();
-FinalizeShader();
-FinalizeRenderer();
+```
+Initializeして
+```cpp
+g_pNaiyo = new Sprite2D(
+	{ 140.0f, 140.0f },
+	{ 200.0f, 200.0f },
+	0.0f,
+	{ 1.0f, 1.0f, 1.0f, 1.0f },
+	BLENDSTATE_NONE,
+	L"asset\\texture\\notfound_thumbnail.png"
+);
+```
+**updateが一番触ることになると思う（例は決定ボタンを押してる間だけ回転）**
+
+入力方式が授業のとはかなり違うので気を付ける（次の章）
+```cpp
+	if (Input_IsActionDown(INPUT_ACTION_DECIDE))
+	{
+		g_pNaiyo->AddRot(-360.0f * (1.0f / FPS / 4));
+	}
+
+```
+draw、finalizeでSAFE_DELETE。
+```cpp
+
+Draw
+if (g_pNaiyo) g_pNaiyo->Draw();
+
+Finalize
+if (g_pDebugButton) g_pDebugButton->Draw();
+
 ```
 
-- `Camera_Initialize()` はメインループでは呼ばない。必要なシーンで自前初期化する（デバッグは `DebugCamera_Initialize`）。
-- 毎フレームの論理更新は固定ステップ `1/FPS`。`Fade_Update` → `Update()` → `Draw()` → `Fade_Draw`。
-- F11 でボーダレス切替、F2 でスクリーンショット（`TakeScreenshot`）。
+~~人間が読むのはここまで。あとはAIに食わせてね~~
 
 ---
 
-## シーン構成
+## input_manager
 
+シーンからは `input_manager.h` の **`Input_IsActionDown`** / **`Input_IsActionTrigger`** を使う。
 
-| ID             | ファイル           | 現状                                         |
-| -------------- | -------------- | ------------------------------------------ |
-| `SCENE_TITLE`  | `title.cpp`    | `"TITLE"` 表示。Decide で `SCENE_GAME` へフェード遷移 |
-| `SCENE_GAME`   | `game.cpp`     | `"GAME"` 表示。Decide で `SCENE_RESULT` へ      |
-| `SCENE_RESULT` | `result.cpp`   | `"RESULT"` 表示。Decide で `SCENE_TITLE` へ     |
-| `SCENE_DEBUG`  | `debugscene/*` | モデル／ライティング／トゥーン検証。起動時は未使用                  |
+ `keyboard.h` / `gamepad.h` **の直接読み取は禁止**。 コントローラー・キーボード双方の入力実装をやりやすくするため。 
+（SCENE_DEBUG内ならどうせ除外されるので何やってもいいが）
 
-
-デバッグへ入るには `scene.cpp` の初期 `scene` を `SCENE_DEBUG` にするか、`SetSceneFade(SCENE_DEBUG)` を呼ぶ。
-
-`SCENE_DEBUG` 内は **Tab** でサブシーン循環（MODEL → LIGHTING → TOON）、**Esc** でマウスアンロック。
-
----
-
-## Renderer（描画エンジン）
-
-ヘッダ: `shader/renderer.h`
-
-### 毎フレームの描画フロー
+詳細・アクション定数・マッピングは [input.md](input.md) を参照。  
+マウス／カメラ設計は [mouse_camera_implementation_flow.md](mouse_camera_implementation_flow.md)。
 
 ```cpp
-Clear();
+#include "input_manager.h"
 
-// --- 3D描画 ---
-SetDepthEnable(true);   // 内部で 3D ビューポートも設定
-// モデルの Draw()
+// 押し続け / 押した瞬間
+if (Input_IsActionDown(INPUT_ACTION_DECIDE)) { /* ... */ }
+if (Input_IsActionTrigger(INPUT_ACTION_DECIDE)) { /* ... */ }
 
-// --- 2D描画 ---
-SetDepthEnable(false);  // 内部で 2D ビューポートも設定
-// スプライト / Font の Draw()（各 Draw が行列をセットアップ）
-
-Present();
+Input_Vector2 move = Input_GetMoveVector();  // WASD / DPad / LStick
+Input_Vector2 look = Input_GetLookVector();  // 矢印 / RStick
 ```
 
-`main.cpp` ではシーン `Draw()` の後に `SetDepthEnable(false)` → `Fade_Draw()` → `Present()` を行う。
+| 定数                                     | 主な用途       |
+| -------------------------------------- | ---------- |
+| `INPUT_ACTION_DECIDE`                  | 決定 / 進行    |
+| `INPUT_ACTION_CANCEL`                  | キャンセル / 戻る |
+| `INPUT_ACTION_MENU_UP/DOWN/LEFT/RIGHT` | メニュー移動     |
+| `INPUT_ACTION_PAUSE`                   | ポーズ        |
 
-### 行列・ライト設定
+### 例外（キーボード直叩き）
+
+デバッグシーンの特殊キー（Tab 切替、Esc でマウスアンロックなど）や、メインループの F2 / F11 のように、抽象アクションに載せない操作のみ `keyboard.h` を直接使ってよい。
 
 ```cpp
-SetWorldMatrix(worldMat);
-SetViewMatrix(viewMat);
-SetProjectionMatrix(projMat);
-SetCameraPosition(XMFLOAT3(x, y, z));
-SetLight(light);
-SetPlayerLights(lights);   // PBR 用 3 点照明
-SetParameter(XMFLOAT4(...)); // Toon1 閾値などシェーダー任意パラメータ
+// 例外: デバッグ等
+if (Keyboard_IsKeyDown(KK_W)) { }
+if (Keyboard_IsKeyDownTrigger(KK_TAB)) { }
 ```
 
-### ブレンドステート
+主要キー: `KK_A〜KK_Z`, `KK_LEFT/RIGHT/UP/DOWN`, `KK_SPACE`, `KK_ENTER`, `KK_ESCAPE`, `KK_LEFTSHIFT`, `KK_LEFTCONTROL`, `KK_TAB`, `KK_F2`, `KK_F11`
+
+### マウス
 
 ```cpp
-SetBlendState(BLENDSTATE_NONE);   // 合成なし
-SetBlendState(BLENDSTATE_ALFA);   // αブレンド
-SetBlendState(BLENDSTATE_ADD);    // 加算
-SetBlendState(BLENDSTATE_SUB);    // 減算
+Mouse_State ms;
+Mouse_GetState(&ms);
+Mouse_SetMode(MOUSE_POSITION_MODE_RELATIVE);
+LockMouse();
+UnLockMouse();
 ```
 
-### シェーダータイプ（SHADERTYPE）
+### Gamepad
 
-`shader/shadermanager.h` より。
+ヘッダ: `framework/gamepad.h`
 
-
-| 値                             | 説明                      |
-| ----------------------------- | ----------------------- |
-| `S_UNLIT`                     | ライティングなし                |
-| `S_LAMBERT`                   | 頂点ランバート                 |
-| `S_PHONG`                     | ピクセルフォン（汎用の既定寄り）        |
-| `S_PBR`                       | PBR + `SetPlayerLights` |
-| `S_RIM_LIGHT`                 | リムライト                   |
-| `S_OUTLINE`                   | アウトライン                  |
-| `S_SHADOW_MAP`                | ShadowMap 深度描画          |
-| `S_BILLBOARD_SHADOW_MAP`      | 透過ビルボード用 ShadowMap      |
-| `S_SHADOW_RECEIVE`            | 影受け                     |
-| `S_NORMAL_MAP_SHADOW_RECEIVE` | 法線マップ + 影受け             |
-| `S_PHONG_SHADOW`              | 点光ランバート + 影受け           |
-| `S_CHROMAKEY`                 | クロマキー（動画透過）             |
-| `S_COOK_TORRANCE`             | Cook-Torrance           |
-| `S_DISNEY_PBR`                | Disney PBR              |
-| `S_HEMISPHERE`                | 半球ライティング                |
-| `S_NORMAL_MAP`                | 法線マップ単体                 |
-| `S_POINT_LIGHT`               | ポイントライト                 |
-| `S_SPOT_LIGHT`                | スポットライト                 |
-| `S_TOON1`                     | 段階トゥーン + 簡易エッジ          |
-| `S_TOON2`                     | ランプテクスチャ（`Toon2.png`）   |
-
-
-検証例: `debugscene/debug_lighting_scene.cpp` / `debug_toon_scene.cpp`。
-
----
-
-## Camera（カメラ）
-
-ヘッダ: `framework/camera.h`
-
-プレイヤー追従のオービットカメラ。マウス相対移動で yaw/pitch を更新する。
+`main` で `Gamepad_Initialize` / `Finalize`。通常プレイは `input_manager` 経由。振動やレイアウト切替など低レベル操作時のみ直接使う。
 
 ```cpp
-Camera_Initialize();
-Camera_Finalize();
-Camera_Update();
-
-Camera_SetTargetPos(playerPos);
-Camera_LookAtPoint(XMFLOAT3(x, y, z));  // 約 0.25 秒で向きを合わせる
-GetCamera()->SkipNextInput(2);
-
-Camera_SetSensitivity(1.0f);
-Camera_SetDistance(6.0f);
-
-Camera* cam = GetCamera();
-XMFLOAT3 pos = cam->GetPos();
-float yaw = Camera_GetYaw();
+Gamepad_SetLayout(GAMEPAD_LAYOUT_XBOX);  // または GAMEPAD_LAYOUT_SWITCH_ABXY
+Gamepad_SetVibration(0, 0.5f, 0.5f);
+bool connected = Gamepad_IsConnected(0);
 ```
-
-ピッチ制限（`define.h`）:
-
-- 上: `PITCH_LIMIT_LOOK_UP = 25.0f`
-- 下: `PITCH_LIMIT_LOOK_DOWN = -60.0f`
-
-デバッグ用フリーカメラは `debugscene/debugcamera.h`（WASD + マウス）。
 
 ---
 
@@ -465,6 +410,114 @@ FADESTAT state = GetFadeState();
 
 ---
 
+## Renderer（描画エンジン）
+
+ヘッダ: `shader/renderer.h`
+
+### 毎フレームの描画フロー
+
+```cpp
+Clear();
+
+// --- 3D描画 ---
+SetDepthEnable(true);   // 内部で 3D ビューポートも設定
+// モデルの Draw()
+
+// --- 2D描画 ---
+SetDepthEnable(false);  // 内部で 2D ビューポートも設定
+// スプライト / Font の Draw()（各 Draw が行列をセットアップ）
+
+Present();
+```
+
+`main.cpp` ではシーン `Draw()` の後に `SetDepthEnable(false)` → `Fade_Draw()` → `Present()` を行う。
+
+### 行列・ライト設定
+
+```cpp
+SetWorldMatrix(worldMat);
+SetViewMatrix(viewMat);
+SetProjectionMatrix(projMat);
+SetCameraPosition(XMFLOAT3(x, y, z));
+SetLight(light);
+SetPlayerLights(lights);   // PBR 用 3 点照明
+SetParameter(XMFLOAT4(...)); // Toon1 閾値などシェーダー任意パラメータ
+```
+
+### ブレンドステート
+
+```cpp
+SetBlendState(BLENDSTATE_NONE);   // 合成なし
+SetBlendState(BLENDSTATE_ALFA);   // αブレンド
+SetBlendState(BLENDSTATE_ADD);    // 加算
+SetBlendState(BLENDSTATE_SUB);    // 減算
+```
+
+### シェーダータイプ（SHADERTYPE）
+
+`shader/shadermanager.h` より。
+
+
+| 値                             | 説明                      |
+| ----------------------------- | ----------------------- |
+| `S_UNLIT`                     | ライティングなし                |
+| `S_LAMBERT`                   | 頂点ランバート                 |
+| `S_PHONG`                     | ピクセルフォン（汎用の既定寄り）        |
+| `S_PBR`                       | PBR + `SetPlayerLights` |
+| `S_RIM_LIGHT`                 | リムライト                   |
+| `S_OUTLINE`                   | アウトライン                  |
+| `S_SHADOW_MAP`                | ShadowMap 深度描画          |
+| `S_BILLBOARD_SHADOW_MAP`      | 透過ビルボード用 ShadowMap      |
+| `S_SHADOW_RECEIVE`            | 影受け                     |
+| `S_NORMAL_MAP_SHADOW_RECEIVE` | 法線マップ + 影受け             |
+| `S_PHONG_SHADOW`              | 点光ランバート + 影受け           |
+| `S_CHROMAKEY`                 | クロマキー（動画透過）             |
+| `S_COOK_TORRANCE`             | Cook-Torrance           |
+| `S_DISNEY_PBR`                | Disney PBR              |
+| `S_HEMISPHERE`                | 半球ライティング                |
+| `S_NORMAL_MAP`                | 法線マップ単体                 |
+| `S_POINT_LIGHT`               | ポイントライト                 |
+| `S_SPOT_LIGHT`                | スポットライト                 |
+| `S_TOON1`                     | 段階トゥーン + 簡易エッジ          |
+| `S_TOON2`                     | ランプテクスチャ（`Toon2.png`）   |
+
+
+検証例: `debugscene/debug_lighting_scene.cpp` / `debug_toon_scene.cpp`。
+
+---
+
+## Camera（カメラ）
+
+ヘッダ: `framework/camera.h`
+
+プレイヤー追従のオービットカメラ。マウス相対移動で yaw/pitch を更新する。
+
+```cpp
+Camera_Initialize();
+Camera_Finalize();
+Camera_Update();
+
+Camera_SetTargetPos(playerPos);
+Camera_LookAtPoint(XMFLOAT3(x, y, z));  // 約 0.25 秒で向きを合わせる
+GetCamera()->SkipNextInput(2);
+
+Camera_SetSensitivity(1.0f);
+Camera_SetDistance(6.0f);
+
+Camera* cam = GetCamera();
+XMFLOAT3 pos = cam->GetPos();
+float yaw = Camera_GetYaw();
+```
+
+ピッチ制限（`define.h`）:
+
+- 上: `PITCH_LIMIT_LOOK_UP = 25.0f`
+- 下: `PITCH_LIMIT_LOOK_DOWN = -60.0f`
+
+デバッグ用フリーカメラは `debugscene/debugcamera.h`（WASD + マウス）。
+
+---
+
 ## Texture / Light / Transform
 
 ### Texture
@@ -509,70 +562,13 @@ PBR の 3 点照明は従来どおり `SetPlayerLights`。検証例: `debugscene
 
 ---
 
-## Input / Keyboard / Mouse / Gamepad
+## SCENE_DEBUGについて
 
-### 入力操作について（原則）
+デバッグへはtitleの右上[debugscene]をマウスクリック。
+`SCENE_DEBUG` 内は **Tab** でサブシーン循環（MODEL → LIGHTING → TOON）、右クリックで視点操作、移動はマイクラのクリエと同じ。
+**Esc** でtitleに戻る。
 
-コントローラー・キーボード双方の入力実装をやりやすくするため、**原則** `keyboard.h` / `gamepad.h` **を直接読み取らない**。  
-シーンからは `input_manager.h` の `Input_IsActionDown` / `Input_IsActionTrigger` を使う。
-（SCENE_DEBUG内ならどうせ除外されるので何やってもいい）
-
-詳細・アクション定数・マッピングは [input.md](input.md) を参照。  
-マウス／カメラ設計は [mouse_camera_implementation_flow.md](mouse_camera_implementation_flow.md)。
-
-```cpp
-#include "input_manager.h"
-
-// 押し続け / 押した瞬間
-if (Input_IsActionDown(INPUT_ACTION_DECIDE)) { /* ... */ }
-if (Input_IsActionTrigger(INPUT_ACTION_DECIDE)) { /* ... */ }
-
-Input_Vector2 move = Input_GetMoveVector();  // WASD / DPad / LStick
-Input_Vector2 look = Input_GetLookVector();  // 矢印 / RStick
-```
-
-| 定数                                     | 主な用途       |
-| -------------------------------------- | ---------- |
-| `INPUT_ACTION_DECIDE`                  | 決定 / 進行    |
-| `INPUT_ACTION_CANCEL`                  | キャンセル / 戻る |
-| `INPUT_ACTION_MENU_UP/DOWN/LEFT/RIGHT` | メニュー移動     |
-| `INPUT_ACTION_PAUSE`                   | ポーズ        |
-
-### 例外（キーボード直叩き）
-
-デバッグシーンの特殊キー（Tab 切替、Esc でマウスアンロックなど）や、メインループの F2 / F11 のように、抽象アクションに載せない操作のみ `keyboard.h` を直接使ってよい。
-
-```cpp
-// 例外: デバッグ等
-if (Keyboard_IsKeyDown(KK_W)) { }
-if (Keyboard_IsKeyDownTrigger(KK_TAB)) { }
-```
-
-主要キー: `KK_A〜KK_Z`, `KK_LEFT/RIGHT/UP/DOWN`, `KK_SPACE`, `KK_ENTER`, `KK_ESCAPE`, `KK_LEFTSHIFT`, `KK_LEFTCONTROL`, `KK_TAB`, `KK_F2`, `KK_F11`
-
-### マウス
-
-```cpp
-Mouse_State ms;
-Mouse_GetState(&ms);
-Mouse_SetMode(MOUSE_POSITION_MODE_RELATIVE);
-LockMouse();
-UnLockMouse();
-```
-
-### Gamepad
-
-ヘッダ: `framework/gamepad.h`
-
-`main` で `Gamepad_Initialize` / `Finalize`。通常プレイは `input_manager` 経由。振動やレイアウト切替など低レベル操作時のみ直接使う。
-
-```cpp
-Gamepad_SetLayout(GAMEPAD_LAYOUT_XBOX);  // または GAMEPAD_LAYOUT_SWITCH_ABXY
-Gamepad_SetVibration(0, 0.5f, 0.5f);
-bool connected = Gamepad_IsConnected(0);
-```
-
----
+ReleaseビルドにはSCENE_DEBUGが含まれないようになっている。
 
 ## デバッグ用ユーティリティ
 
@@ -737,7 +733,7 @@ python tool/rename_project.py                    # 対話モード
 
 ---
 
-## よくある注意点
+## 注意点など
 
 - **座標は必ず** `SCREEN_WIDTH/HEIGHT` **基準**。`DRAW_SCREEN_`* を位置計算に使わない。
 - **2D / Font は** `Draw()` **単体で完結**。2D 前に `SetDepthEnable(false)`。

@@ -14,6 +14,15 @@ static ClickFont* g_pDebugButton = nullptr;
 
 void Title_Initialize(void)
 {
+	g_pNaiyo = new Sprite2D(
+		{ 140.0f, 140.0f },
+		{ 200.0f, 200.0f },
+		0.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		BLENDSTATE_NONE,
+		L"asset\\texture\\notfound_thumbnail.png"
+	);
+
 	g_pTitleText = new DrawFont(
 		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 40.0f },
 		48.0f,
@@ -30,15 +39,6 @@ void Title_Initialize(void)
 		"Press Decide"
 	);
 
-	g_pNaiyo = new Sprite2D(
-		{ 140.0f, 140.0f },
-		{ 200.0f, 200.0f },
-		0.0f,
-		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		BLENDSTATE_NONE,
-		L"asset\\texture\\notfound_thumbnail.png"
-	);
-	
 	g_pDebugButton = new ClickFont(
 		{ SCREEN_WIDTH - 100.0f , 50.0f },
 		20.0f,
@@ -52,7 +52,7 @@ void Title_Initialize(void)
 void Title_Update(void)
 {
 	// ===================== 入力操作について =====================
-	
+
 	// コントローラー、キーボード双方の入力の実装をやりやすくするため、原則keyboard.hを直接読み取ることはしない
 	// input_manager.hのInput_IsActionDown,Triggerを使用する。
 	// document\input.mdを参照のこと。
@@ -76,16 +76,16 @@ void Title_Update(void)
 
 void Title_Draw(void)
 {
+	if (g_pNaiyo) g_pNaiyo->Draw();
 	if (g_pTitleText) g_pTitleText->Draw();
 	if (g_pHintText) g_pHintText->Draw();
-	if (g_pNaiyo) g_pNaiyo->Draw();
 	if (g_pDebugButton) g_pDebugButton->Draw();
 }
 
 void Title_Finalize(void)
 {
+	SAFE_DELETE(g_pNaiyo);
 	SAFE_DELETE(g_pTitleText);
 	SAFE_DELETE(g_pHintText);
-	SAFE_DELETE(g_pNaiyo);
 	SAFE_DELETE(g_pDebugButton);
 }
