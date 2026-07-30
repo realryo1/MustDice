@@ -130,7 +130,7 @@ void DebugToonScene_Draw(void)
 		g_pToon1Model->Draw();
 	}
 
-	// Toon2: Ramp テクスチャ (t2 — Common.hlsl の ShadowMap が t1)
+	// Toon2: Ramp テクスチャ (t7 — ModelDraw が t2〜t5 を上書きするため)
 	if (g_pToon2Model)
 	{
 		SetParameter(XMFLOAT4(g_TexV, 0.0f, g_EdgeThreshold, 0.0f));
@@ -138,13 +138,13 @@ void DebugToonScene_Draw(void)
 		ID3D11ShaderResourceView* rampSRV = g_pRampSprite ? g_pRampSprite->GetTexture() : nullptr;
 		if (rampSRV)
 		{
-			GetDeviceContext()->PSSetShaderResources(2, 1, &rampSRV);
+			GetDeviceContext()->PSSetShaderResources(7, 1, &rampSRV);
 		}
 
 		g_pToon2Model->Draw();
 
 		ID3D11ShaderResourceView* nullSRV = nullptr;
-		GetDeviceContext()->PSSetShaderResources(2, 1, &nullSRV);
+		GetDeviceContext()->PSSetShaderResources(7, 1, &nullSRV);
 	}
 
 	// 2D: Ramp スプライトは 3D の後

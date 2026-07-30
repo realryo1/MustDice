@@ -1,8 +1,8 @@
 #include "Common.hlsl" //必須インクルード
 
 Texture2D g_Texture : register(t0);
-// t1 は Common.hlsl の ShadowMap 用のため、Ramp は t2 を使う
-Texture2D g_TextureRamp : register(t2);
+// t1=ShadowMap, t2〜t5 は ModelDraw が Normal/PBR 用に上書きするため Ramp は t7
+Texture2D g_TextureRamp : register(t7);
 SamplerState g_SamplerState : register(s0);
 
 void main(in PS_IN In, out float4 outDiffuse : SV_Target)
