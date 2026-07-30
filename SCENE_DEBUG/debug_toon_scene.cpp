@@ -53,10 +53,13 @@ void DebugToonScene_Initialize(void)
 		{ 12.0f, 12.0f },
 		{ 90.0f, 0.0f, 0.0f },
 		"asset\\texture\\tex.png",
-		false
+		true // 裏面からも遮蔽できるよう両面
 	);
 	g_pFloor->SetBillboardMode(false);
 	g_pFloor->SetIgnoreLighting(true);
+	// 既定の WallFade は Depth 無効（壁越し表示用）。床は DepthTest を有効にする。
+	g_pFloor->SetWallFadeEnabled(false);
+	g_pFloor->SetBlendMode(BLENDSTATE_NONE);
 
 	g_pRampSprite = new Sprite2D(
 		{ 140.0f, 140.0f },
@@ -114,6 +117,12 @@ void DebugToonScene_Draw(void)
 		SetCameraPosition(GetCamera()->GetPos());
 	}
 
+	// 床を先に描画（モデルより奥側の基準面）
+	if (g_pFloor)
+	{
+		g_pFloor->Draw();
+	}
+
 	// Toon1: プログラム式段階分け
 	if (g_pToon1Model)
 	{
@@ -136,11 +145,6 @@ void DebugToonScene_Draw(void)
 
 		ID3D11ShaderResourceView* nullSRV = nullptr;
 		GetDeviceContext()->PSSetShaderResources(2, 1, &nullSRV);
-	}
-
-	if (g_pFloor)
-	{
-		g_pFloor->Draw();
 	}
 
 	// 2D: Ramp スプライトは 3D の後

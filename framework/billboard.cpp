@@ -223,7 +223,8 @@ void Billboard::Draw(void)
 	if (!m_WallFadeEnabled)
 	{
 		SetDepthEnable(true);
-		SetDepthWriteEnable(false); // 半透明なのでデプス書き込みは無効にする
+		// 不透明は Depth 書き込みで遮蔽。半透明はテストのみ（書き込み無効）。
+		SetDepthWriteEnable(m_BlendMode == BLENDSTATE_NONE);
 	}
 	else
 	{
