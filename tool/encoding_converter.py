@@ -128,6 +128,16 @@ def resolve_target_dir(raw, default_root):
     return (default_root / p).resolve()
 
 
+def pause_if_interactive():
+    """対話端末でのみ Enter 待ち。Agent 等の非対話実行ではスキップ。"""
+    try:
+        if sys.stdin is None or not sys.stdin.isatty():
+            return
+        input('\nPress Enter to exit...')
+    except (EOFError, OSError):
+        pass
+
+
 def load_or_create_setupdirectory(tool_dir, default_root):
     setupdir_file = tool_dir / 'setupdirectory.txt'
     if not setupdir_file.exists():
@@ -147,7 +157,7 @@ def load_or_create_setupdirectory(tool_dir, default_root):
 
     if not dirs:
         print('ERROR: No valid directories found in setupdirectory.txt')
-        input('\nPress Enter to exit...')
+        pause_if_interactive()
         sys.exit(1)
 
     return dirs
@@ -240,7 +250,7 @@ def main():
         print(f'Errors    : {total_err} file(s)')
     print()
     print('Done.')
-    input('\nPress Enter to exit...')
+    pause_if_interactive()
 
 
 if __name__ == '__main__':
@@ -250,5 +260,5 @@ if __name__ == '__main__':
         print()
         print('=== Unexpected Error ===')
         traceback.print_exc()
-        input('\nPress Enter to exit...')
+        pause_if_interactive()
         sys.exit(1)
