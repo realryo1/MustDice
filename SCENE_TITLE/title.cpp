@@ -41,7 +41,7 @@ void Title_Update(void)
 	
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
-		SetSceneFade(SCENE_DEBUG);
+		SetSceneFade(SCENE_GAME);
 	}
 }
 
