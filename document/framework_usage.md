@@ -581,8 +581,61 @@ bool connected = Gamepad_IsConnected(0);
 | `framework/debug_ostream.h` | `hal::dout << "..."` で OutputDebugString（UTF-8） |
 | `framework/input_monitor_console.h` | 別コンソールに入力状態を表示（`main` が自動初期化） |
 | `framework/main.h` | Win32 / D3D / DirectXTex 共通 include、`SAFE_DELETE`、`SetFPS` |
+| `shader/renderer.h` | 描画エンジン API、`SAFE_RELEASE` |
 
 サードパーティ（直接触らない）: `assimp/`・`freetype/`・`imgui/`・`nlohmann/`・`DirectXTex.h`・`stb_truetype.h`。
+
+### SAFE_DELETE
+
+定義: `framework/main.h`
+
+`new` で確保したオブジェクトを解放するマクロ。`nullptr` なら何もしない。解放後はポインタを `nullptr` に戻す。
+シーンの `Finalize` などで使う。
+
+```cpp
+void Title_Finalize(void)
+{
+	SAFE_DELETE(g_pTitleText);
+	SAFE_DELETE(g_pHintText);
+}
+```
+
+| 項目 | 内容 |
+| ---- | ---- |
+| 対象 | `new` / `delete` した単一オブジェクト（`FontRenderer*` など） |
+| 効果 | `delete` + ポインタを `nullptr` にクリア |
+| 再呼び出し | 安全（2 回目は何もしない） |
+| 配列 | `new[]` には使わない（`delete[]` が必要） |
+| COM | `ID3D11*` 等は `SAFE_RELEASE`（`shader/renderer.h`）を使う |
+
+`main.h` を include していれば利用可能。シーン雛形（`template/template.cpp`）もこの書き方になっている。
+
+### SAFE_RELEASE
+
+定義: `shader/renderer.h`
+
+COM オブジェクト（Direct3D のバッファ・ビュー・シェーダーなど）を解放するマクロ。有効なポインタなら `Release()` を呼び、その後 `nullptr` に戻す。
+
+```cpp
+#define SAFE_RELEASE(p) do { if (p) { (p)->Release(); (p) = nullptr; } } while (0)
+```
+
+`Finalize` やリソース破棄時に使う。
+
+```cpp
+SAFE_RELEASE(m_VertexBuffer);
+SAFE_RELEASE(g_RenderTargetView);
+SAFE_RELEASE(g_DepthStencilView);
+```
+
+| 項目 | 内容 |
+| ---- | ---- |
+| 対象 | COM（`ID3D11Buffer*`、`ID3D11ShaderResourceView*` など） |
+| 効果 | `Release()` + ポインタを `nullptr` にクリア |
+| 再呼び出し | 安全（2 回目は何もしない） |
+| C++ オブジェクト | `new` したものには使わない（`SAFE_DELETE` を使う） |
+
+`renderer.h` を include していれば利用可能。
 
 ---
 
@@ -692,4 +745,6 @@ python tool/rename_project.py                    # 対話モード
 - `Fade_Draw()` **は他 UI より前面**（`main` が Present 直前に呼ぶ）。
 - **ウィンドウリサイズ仕様**は [direct3d_viewport_resize_spec.md](direct3d_viewport_resize_spec.md)（実装は `shader/renderer.cpp`）。
 - `.h/.cpp` **は UTF-8 BOM 付き**、`.hlsl` **は UTF-8 BOM なし**。編集後は `python tool/encoding_converter.py` を実行する。
+- `new` **したポインタの解放は** `SAFE_DELETE`**（**`delete` **直書きや二重解放を避ける）。**
+- **COM（**`ID3D11*` **等）の解放は** `SAFE_RELEASE`**（**`Release()` **直書きや二重解放を避ける）。**
 

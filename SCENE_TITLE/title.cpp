@@ -38,7 +38,7 @@ void Title_Update(void)
 	// markdown\input.mdを参照のこと。
 	//
 	// ==========================================================
-	
+
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
 		SetSceneFade(SCENE_GAME);
@@ -53,6 +53,6 @@ void Title_Draw(void)
 
 void Title_Finalize(void)
 {
-	delete g_pTitleText; g_pTitleText = nullptr;
-	delete g_pHintText;  g_pHintText = nullptr;
+	SAFE_DELETE(g_pTitleText);
+	SAFE_DELETE(g_pHintText);
 }
