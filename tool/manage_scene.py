@@ -687,10 +687,13 @@ def create_scene_files(names: SceneNames) -> Path:
 	cpp_text, cpp_enc, cpp_bom = read_text(src_cpp)
 
 	def transform(text: str) -> str:
+		# template.cpp 先頭は "#include \"Template.h\""（ファイル名 template.h とは大文字小文字が異なる）
+		text = text.replace('Template.h', names.header)
 		text = text.replace('template.h', names.header)
 		text = text.replace('Template_', f'{names.prefix}_')
 		text = text.replace('g_pTemplateText', f'g_p{names.prefix}Text')
-		text = text.replace('"TEMPLATE"', f'"{names.display}"')
+		text = text.replace('"Template"', f'"{names.display}"')
+		text = text.replace('SCENE_Template', names.enum)
 		return text
 
 	write_text(dest_dir / names.header, transform(h_text), h_enc, h_bom)
