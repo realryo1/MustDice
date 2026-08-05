@@ -88,7 +88,7 @@
 
 ## フローチャート
 
-[document_game\flowchart.md](document_game\flowchart.md)
+[document_ingame\flowchart.md](document_ingame\flowchart.md)
 
 ## 実装ドキュメント
 
