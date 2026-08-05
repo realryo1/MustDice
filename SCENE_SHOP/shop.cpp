@@ -6,7 +6,6 @@
 #include "scene.h"
 #include "run_session.h"
 #include <cstdio>
-#include <string>
 
 using namespace DirectX;
 
@@ -16,14 +15,15 @@ static DrawFont* g_pHintText = nullptr;
 
 void Shop_Initialize(void)
 {
-	// 拡張ポイント: サイコロ数字変化・アーティファクト購入・メッキなど
+	// α: 購入・強化は未実装。クリア報酬確認のみ
 
-	char status[128] = {};
+	char status[160] = {};
 	std::snprintf(
 		status,
 		sizeof(status),
-		"cleared R%d  money %d  next target ~%d",
+		"R%d clear  +%d money  total %d  next target %d",
 		RunSession_GetRoundIndex(),
+		RunSession_GetLastClearReward(),
 		RunSession_GetMoney(),
 		RunSession_GetTargetScore() + 50
 	);
@@ -38,7 +38,7 @@ void Shop_Initialize(void)
 
 	g_pStatusText = new DrawFont(
 		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f },
-		24.0f,
+		22.0f,
 		0.0f,
 		{ 0.9f, 0.9f, 0.9f, 1.0f },
 		status
@@ -49,7 +49,7 @@ void Shop_Initialize(void)
 		22.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Decide: 次ラウンドへ"
+		"Decide: 次ラウンドへ（購入はα未実装）"
 	);
 }
 

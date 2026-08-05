@@ -100,6 +100,9 @@
     <ClCompile Include="app\run_session.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="app\bet_logic.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
     <ClCompile Include="framework\mouse.cpp">
       <Filter>フレームワーク\input</Filter>
     </ClCompile>
@@ -244,6 +247,9 @@
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app\run_session.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\bet_logic.h">
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app\version.h">

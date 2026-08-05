@@ -1,16 +1,16 @@
 ﻿#include "run_session.h"
+#include "bet_logic.h"
 
-// α用プレースホルダ定数（本スコア計算は未実装）
 static const int kInitialTargetScore = 200;
 static const int kTargetScoreStep = 50;
 static const int kMaxBetsPerRound = 3;
-static const int kStubBetScore = 100;
 
 static int g_roundIndex = 0;
 static int g_targetScore = kInitialTargetScore;
 static int g_roundScore = 0;
 static int g_betCount = 0;
 static int g_money = 0;
+static int g_lastClearReward = 0;
 
 void RunSession_Reset(void)
 {
@@ -19,6 +19,8 @@ void RunSession_Reset(void)
 	g_roundScore = 0;
 	g_betCount = 0;
 	g_money = 0;
+	g_lastClearReward = 0;
+	BetLogic_SeedFromDevice();
 }
 
 void RunSession_BeginRound(void)
@@ -26,6 +28,7 @@ void RunSession_BeginRound(void)
 	g_roundIndex += 1;
 	g_roundScore = 0;
 	g_betCount = 0;
+	g_lastClearReward = 0;
 
 	if (g_roundIndex <= 1)
 	{
@@ -37,11 +40,16 @@ void RunSession_BeginRound(void)
 	}
 }
 
-void RunSession_AddBetStub(void)
+void RunSession_ApplyBetScore(int score)
 {
-	// 賭けロジック未実装。進行確認用に固定点を加算するだけ
-	g_roundScore += kStubBetScore;
+	g_roundScore += score;
 	g_betCount += 1;
+}
+
+void RunSession_GrantClearReward(void)
+{
+	g_lastClearReward = g_roundScore / 10;
+	g_money += g_lastClearReward;
 }
 
 int RunSession_GetRoundIndex(void)
@@ -69,6 +77,11 @@ int RunSession_GetMoney(void)
 	return g_money;
 }
 
+int RunSession_GetLastClearReward(void)
+{
+	return g_lastClearReward;
+}
+
 void RunSession_SetTargetScore(int value)
 {
 	g_targetScore = value;
@@ -92,4 +105,9 @@ void RunSession_SetMoney(int value)
 bool RunSession_IsBetLimitReached(void)
 {
 	return g_betCount >= kMaxBetsPerRound;
+}
+
+bool RunSession_IsTargetMet(void)
+{
+	return g_roundScore >= g_targetScore;
 }

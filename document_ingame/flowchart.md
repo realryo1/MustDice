@@ -2,6 +2,8 @@
 
 元図: [`kaihatsu_resorce/mustdiceフローチャート.png`](../kaihatsu_resorce/mustdiceフローチャート.png)
 
+倍率・素点・外れ計算の詳細は [about_game.md](about_game.md) を正とする。
+
 配置の目安（元図どおり）:
 - 左列: ピンポイント（YES）
 - 右列: 奇数/偶数（NO）
@@ -20,11 +22,7 @@ flowchart TB
     %% 左: ピンポイント
     IsPinpoint -->|YES| PickA[賭ける数字選択<br>賭ける数字「A」]
     PickA --> RollB[サイコロを振る<br>サイコロの数値「B」]
-    RollB --> DiffCheck{AとBは異なる？}
-    DiffCheck -->|YES| Adjust[A = Bになるように<br>Aの数字を +1 または -1<br>倍率 -0.1倍<br>※異なる間は繰り返す]
-    DiffCheck -->|NO| PinScore[スコアの素点に倍率をかける<br>素点は100点<br>確率の中央値を1.0倍<br>そこから1つ離れるほど +0.1倍]
-    Adjust --> PinScore
-    PinScore -.-> MultTable[倍率表は about_game.md 参照]
+    RollB --> PinScore[スコア算出<br>素点100 × 予想Aの倍率<br>外れ時はさらに −0.1×\|A−B\|<br>詳細は about_game.md]
 
     %% 右: 奇数/偶数
     IsPinpoint -->|NO| OddEven[賭け方「奇数/偶数」<br>合計の奇偶を当てる賭け方]
@@ -38,12 +36,12 @@ flowchart TB
     PinScore --> AddScore[スコア算出し<br>ラウンドの合計スコアに加算<br>賭けた数 +1]
     HitScore --> AddScore
     MissScore --> AddScore
-    AddScore --> BetCount{賭けた数が3を超えた？}
+    AddScore --> BetCount{3回終了した？}
     BetCount -->|NO| BackBet[賭け方選択へ戻る]
     BetCount -->|YES| GoalCheck{ラウンドの合計スコアが<br>目標スコア以上？}
 
     %% 勝敗・ショップ（最下部）
     GoalCheck -->|NO| GameOver[ゲームオーバー<br>リザルト画面に遷移<br>※タイトルへ戻る]
     GoalCheck -->|YES| Shop[お金を獲得<br>ショップに入る]
-    Shop --> Spend[お金を消費し<br>サイコロの数字変化・アーティファクト購入<br>ダイス面のメッキなどを行う<br>次ラウンドの目標スコアは少し高くなる<br>※ラウンド開始へ戻る]
+    Shop --> Spend[お金を消費し<br>サイコロの数字変化・アーティファクト購入<br>ダイス面のメッキなどを行う<br>次ラウンドの目標スコアは少し高くなる<br>※ラウンド開始へ戻る<br>※αでは購入未実装・確認のみ]
 ```
