@@ -1,5 +1,6 @@
 ﻿#include "scene.h"
 #include "game.h"
+#include "shop.h"
 #include "renderer.h"
 #include "keyboard.h"
 #include "texture.h"
@@ -48,6 +49,9 @@ void Init( void )
 		case SCENE_GAME:
 		Game_Initialize();
 		break;
+		case SCENE_SHOP:
+		Shop_Initialize();
+		break;
 		case SCENE_RESULT:
 		Result_Initialize();
 		break;
@@ -76,6 +80,9 @@ void Update( void )
 		case SCENE_GAME:
 		Game_Update();
 		break;
+		case SCENE_SHOP:
+		Shop_Update();
+		break;
 		case SCENE_RESULT:
 		Result_Update();
 		break;
@@ -99,6 +106,9 @@ void Draw( void )
 		case SCENE_GAME:
 		Game_Draw();
 		break;
+		case SCENE_SHOP:
+		Shop_Draw();
+		break;
 		case SCENE_RESULT:
 		Result_Draw();
 		break;
@@ -121,6 +131,9 @@ void Finalize( void )
 		break;
 		case SCENE_GAME:
 		Game_Finalize();
+		break;
+		case SCENE_SHOP:
+		Shop_Finalize();
 		break;
 		case SCENE_RESULT:
 		Result_Finalize();

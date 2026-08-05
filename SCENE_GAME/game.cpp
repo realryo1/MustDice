@@ -33,7 +33,7 @@ void Game_Update(void)
 {
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
-		SetSceneFade(SCENE_RESULT);
+		SetSceneFade(SCENE_SHOP);
 	}
 }
 

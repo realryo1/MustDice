@@ -115,6 +115,9 @@
     <ClCompile Include="SCENE_DEBUG\debugscene.cpp">
       <Filter>SCENE_DEBUG</Filter>
     </ClCompile>
+    <ClCompile Include="SCENE_SHOP\shop.cpp">
+      <Filter>SCENE_SHOP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework\camera.h">
@@ -258,6 +261,9 @@
     <ClInclude Include="SCENE_DEBUG\debugscene.h">
       <Filter>SCENE_DEBUG</Filter>
     </ClInclude>
+    <ClInclude Include="SCENE_SHOP\shop.h">
+      <Filter>SCENE_SHOP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="app">
@@ -301,6 +307,9 @@
     </Filter>
     <Filter Include="SCENE_GAME">
       <UniqueIdentifier>{a332fe49-7ef9-4e75-93cd-14f40959dd2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SCENE_SHOP">
+      <UniqueIdentifier>{20a60356-b6bf-40cd-979a-ad65017e5f93}</UniqueIdentifier>
     </Filter>
     <Filter Include="リソース ファイル">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>

@@ -60,7 +60,7 @@ void Title_Update(void)
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
 		//シーン遷移はSetSceneFadeのみ
-		SetSceneFade(SCENE_TITLE);
+		SetSceneFade(SCENE_GAME);
 	}
 
 	// ==========================================================
