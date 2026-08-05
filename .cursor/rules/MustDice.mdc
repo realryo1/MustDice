@@ -1,5 +1,5 @@
 ---
-description: DirectXFrameworkの基本ルール
+description: MustDiceのルール
 alwaysApply: true
 ---
 
@@ -13,5 +13,4 @@ alwaysApply: true
 
 # プロジェクトルール
 
-- 実装の完了後、必ず「tool\encoding_converter.py」を実行し、エンコーディングを整える。
-- document\framework_usage.mdにフレームワークの概要がある
+- 「readme.md」もシステムプロンプトとして扱う。内容を精読する。
