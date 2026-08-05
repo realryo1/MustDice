@@ -86,6 +86,8 @@ bool Input_IsActionDown(Input_Action action)
         return Keyboard_IsKeyDown(KK_RIGHT) || Keyboard_IsKeyDown(KK_D) || Gamepad_IsButtonDown(player, GPB_DPAD_RIGHT) || Input_GetMoveVector().x > kMoveStickThreshold;
     case INPUT_ACTION_PAUSE:
         return Keyboard_IsKeyDown(KK_ESCAPE) || Gamepad_IsButtonDown(player, GPB_START);
+    case INPUT_ACTION_BACK:
+        return Keyboard_IsKeyDown(KK_ESCAPE) || Keyboard_IsKeyDown(KK_X) || Gamepad_IsButtonDown(player, GPB_X);
     default:
         return false;
     }
@@ -106,7 +108,12 @@ bool Input_IsActionTrigger(Input_Action action)
         }
         return triggered;
     case INPUT_ACTION_CANCEL:
-        return Keyboard_IsKeyDownTrigger(KK_BACK) || Gamepad_IsButtonTrigger(player, GPB_B);
+        triggered = Keyboard_IsKeyDownTrigger(KK_BACK) || Gamepad_IsButtonTrigger(player, GPB_B);
+        if (triggered && g_pDecideSe)
+        {
+            PlaySound(g_pDecideSe, false);//もどるボタンでも音だけなるように
+        }
+        return triggered;
     case INPUT_ACTION_MENU_UP:
         return Keyboard_IsKeyDownTrigger(KK_UP) || Keyboard_IsKeyDownTrigger(KK_W) || Gamepad_IsButtonTrigger(player, GPB_DPAD_UP) || g_LStickTriggerUp;
     case INPUT_ACTION_MENU_DOWN:
@@ -117,6 +124,8 @@ bool Input_IsActionTrigger(Input_Action action)
         return Keyboard_IsKeyDownTrigger(KK_RIGHT) || Keyboard_IsKeyDownTrigger(KK_D) || Gamepad_IsButtonTrigger(player, GPB_DPAD_RIGHT) || g_LStickTriggerRight;
     case INPUT_ACTION_PAUSE:
         return Keyboard_IsKeyDownTrigger(KK_ESCAPE) || Gamepad_IsButtonTrigger(player, GPB_START);
+    case INPUT_ACTION_BACK:
+        return Keyboard_IsKeyDownTrigger(KK_ESCAPE) || Keyboard_IsKeyDownTrigger(KK_X) || Gamepad_IsButtonTrigger(player, GPB_X);
     default:
         return false;
     }

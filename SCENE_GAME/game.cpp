@@ -56,11 +56,11 @@ static const char* GamePhase_ToHint(GamePhase phase)
 	case GAME_PHASE_BET_SELECT:
 		return "Enter,A: ピンポイント / BackSpace,B: 奇数偶数";
 	case GAME_PHASE_PINPOINT_PICK:
-		return "Left/Right: 予想変更 / Enter,A: 確定";
+		return "Left/Right: 予想変更 / Enter,A: 確定 / Esc,X: 戻る";
 	case GAME_PHASE_ODD_EVEN_PICK:
-		return "Enter,A: 奇数 / BackSpace,B: 偶数";
+		return "Enter,A: 奇数 / BackSpace,B: 偶数 / Esc,X: 戻る";
 	case GAME_PHASE_ROLL:
-		return "Enter,A: サイコロを振る";
+		return "Enter,A: サイコロを振る / Esc,X: 戻る";
 	case GAME_PHASE_RESOLVE:
 		return "Enter,A: 次へ";
 	case GAME_PHASE_GOAL_CHECK:
@@ -225,6 +225,7 @@ void Game_Update(void)
 {
 	const bool decide = Input_IsActionTrigger(INPUT_ACTION_DECIDE);
 	const bool cancel = Input_IsActionTrigger(INPUT_ACTION_CANCEL);
+	const bool back = Input_IsActionTrigger(INPUT_ACTION_BACK);
 	const bool left = Input_IsActionTrigger(INPUT_ACTION_MENU_LEFT);
 	const bool right = Input_IsActionTrigger(INPUT_ACTION_MENU_RIGHT);
 
@@ -252,7 +253,12 @@ void Game_Update(void)
 		break;
 
 	case GAME_PHASE_PINPOINT_PICK:
-		if (left && g_pickSum > BET_SUM_MIN)
+		if (back)
+		{
+			g_betKind = BET_KIND_NONE;
+			Game_SetPhase(GAME_PHASE_BET_SELECT);
+		}
+		else if (left && g_pickSum > BET_SUM_MIN)
 		{
 			g_pickSum -= 1;
 			Game_SetPhase(GAME_PHASE_PINPOINT_PICK);
@@ -269,7 +275,12 @@ void Game_Update(void)
 		break;
 
 	case GAME_PHASE_ODD_EVEN_PICK:
-		if (decide)
+		if (back)
+		{
+			g_betKind = BET_KIND_NONE;
+			Game_SetPhase(GAME_PHASE_BET_SELECT);
+		}
+		else if (decide)
 		{
 			g_pickOdd = true;
 			Game_SetPhase(GAME_PHASE_ROLL);
@@ -282,7 +293,22 @@ void Game_Update(void)
 		break;
 
 	case GAME_PHASE_ROLL:
-		if (decide)
+		if (back)
+		{
+			if (g_betKind == BET_KIND_PINPOINT)
+			{
+				Game_SetPhase(GAME_PHASE_PINPOINT_PICK);
+			}
+			else if (g_betKind == BET_KIND_ODD_EVEN)
+			{
+				Game_SetPhase(GAME_PHASE_ODD_EVEN_PICK);
+			}
+			else
+			{
+				Game_SetPhase(GAME_PHASE_BET_SELECT);
+			}
+		}
+		else if (decide)
 		{
 			BetLogic_Roll2d6(&g_die0, &g_die1);
 			g_rolledSum = g_die0 + g_die1;

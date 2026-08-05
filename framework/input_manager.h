@@ -11,6 +11,7 @@ typedef enum Input_Action_tag
     INPUT_ACTION_MENU_LEFT,         // メニュー左移動 (A, LEFT, DPad-LEFT, LStick-LEFT)
     INPUT_ACTION_MENU_RIGHT,        // メニュー右移動 (D, RIGHT, DPad-RIGHT, LStick-RIGHT)
     INPUT_ACTION_PAUSE,             // ポーズ画面 (Escape / STARTボタン)
+    INPUT_ACTION_BACK,              // 一つ戻る (Escape, X / Xボタン)
 } Input_Action;
 
 typedef struct Input_Vector2_tag

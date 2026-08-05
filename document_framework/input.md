@@ -36,6 +36,7 @@ void Input_SetGamepadLayout(Gamepad_Layout layout);
 | `INPUT_ACTION_MENU_LEFT` | メニュー左 | `A`, `←` | `DPad-LEFT` / `LStick-LEFT` (※1) |
 | `INPUT_ACTION_MENU_RIGHT` | メニュー右 | `D`, `→` | `DPad-RIGHT` / `LStick-RIGHT` (※1) |
 | `INPUT_ACTION_PAUSE` | ポーズ | `Escape` | `START` |
+| `INPUT_ACTION_BACK` | 一つ戻る | `Escape`, `X` | `X` |
 
 > **(※1) スティックのトリガー検出**  
 > `Input_Update` 内で LStick の前フレーム比較を行い、閾値 `0.5f` を超えた最初の 1 フレームだけを `Input_IsActionTrigger` で返す。長押しによるメニュー誤作動を防ぐ。
@@ -58,8 +59,9 @@ bool Input_IsActionTrigger(Input_Action action);  // 押した瞬間
 * 使用アクション: `INPUT_ACTION_DECIDE`
 
 ### SCENE_GAME（`game.cpp`）
-* Decide で `SetSceneFade(SCENE_RESULT)`
-* 使用アクション: `INPUT_ACTION_DECIDE`
+* フェーズ進行は Decide / Cancel / メニュー左右
+* Esc / X（`INPUT_ACTION_BACK`）で前フェーズへ戻る（選択・ロール前）
+* 使用アクション: `INPUT_ACTION_DECIDE` / `CANCEL` / `MENU_*` / `BACK`
 
 ### SCENE_RESULT（`result.cpp`）
 * Decide で `SetSceneFade(SCENE_TITLE)`
