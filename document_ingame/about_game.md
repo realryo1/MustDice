@@ -108,5 +108,6 @@
 
 ## 実装ドキュメント
 
+- 進捗リスト: [progress.md](progress.md)
 - ラン共有状態（シーン横断）: [run_session.md](run_session.md)
 - 賭け計算・2d6: `app/bet_logic.h` / `app/bet_logic.cpp`
