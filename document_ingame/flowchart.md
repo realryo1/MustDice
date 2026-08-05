@@ -22,7 +22,7 @@ flowchart TB
     %% 左: ピンポイント
     IsPinpoint -->|YES| PickA[賭ける数字選択<br>賭ける数字「A」]
     PickA --> RollB[サイコロを振る<br>サイコロの数値「B」]
-    RollB --> PinScore[スコア算出<br>素点100 × 予想Aの倍率<br>外れ時はさらに −0.1×\|A−B\|<br>詳細は about_game.md]
+    RollB --> PinScore["スコア算出<br>素点100 × 予想Aの倍率<br>外れ時はさらに −0.1×abs(A−B)<br>詳細は about_game.md"]
 
     %% 右: 奇数/偶数
     IsPinpoint -->|NO| OddEven[賭け方「奇数/偶数」<br>合計の奇偶を当てる賭け方]
