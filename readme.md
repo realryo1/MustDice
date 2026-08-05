@@ -23,11 +23,11 @@
 大きな機能追加/修正後はframework,ingame関わらず適切にdocumentを更新する。
 
 ### 初めに見るものは？
-フレームワークを触るときは [framework_usage.md](document_framework\framework_usage.md)、
+フレームワークを触るときは [framework_usage.md](document_framework/framework_usage.md)、
 
-ゲームの要素にかかわるものは[about_game.md](document_ingame\about_game.md)を見る。
+ゲームの要素にかかわるものは[about_game.md](document_ingame/about_game.md)を見る。
 
-随時更新する進捗管理リスト[progress.md](document_ingame\progress.md)
+随時更新する進捗管理リスト[progress.md](document_ingame/progress.md)
 
 ## デバッグシーン（`SCENE_DEBUG`）
 
@@ -43,4 +43,4 @@ Releaseビルドでは除外され、Debugシーンには入れなくなる。
 
 ## エンコーディング修正について
 
-AIエージェントでの実装の完了後は必ず[encoding_converter.py](tool\encoding_converter.py)を実行し、エンコーディングを整える。
+AIエージェントでの実装の完了後は必ず[encoding_converter.py](tool/encoding_converter.py)を実行し、エンコーディングを整える。
