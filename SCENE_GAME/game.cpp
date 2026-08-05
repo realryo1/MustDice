@@ -66,7 +66,7 @@ static const char* GamePhase_ToHint(GamePhase phase)
 	case GAME_PHASE_GOAL_CHECK:
 		return "Enter,A: 結果へ進む";
 	default:
-		return "Press Decide";
+		return "Press Enter,A";
 	}
 }
 
@@ -349,6 +349,7 @@ void Game_Update(void)
 			}
 
 			g_phase = GAME_PHASE_RESOLVE;
+			RunSession_ApplyBetScore(g_lastScore);
 			Game_RefreshUi();
 		}
 		break;
@@ -356,7 +357,6 @@ void Game_Update(void)
 	case GAME_PHASE_RESOLVE:
 		if (decide)
 		{
-			RunSession_ApplyBetScore(g_lastScore);
 			if (RunSession_IsBetLimitReached())
 			{
 				Game_SetPhase(GAME_PHASE_GOAL_CHECK);
