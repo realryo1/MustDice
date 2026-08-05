@@ -1,12 +1,8 @@
 ﻿#include "run_session.h"
 #include "bet_logic.h"
 
-static const int kInitialTargetScore = 200;
-static const int kTargetScoreStep = 50;
-static const int kMaxBetsPerRound = 3;
-
 static int g_roundIndex = 0;
-static int g_targetScore = kInitialTargetScore;
+static int g_targetScore = RUN_INITIAL_TARGET_SCORE;
 static int g_roundScore = 0;
 static int g_betCount = 0;
 static int g_money = 0;
@@ -16,7 +12,7 @@ static int g_lastClearReward = 0;
 void RunSession_Reset(void)
 {
 	g_roundIndex = 0;
-	g_targetScore = kInitialTargetScore;
+	g_targetScore = RUN_INITIAL_TARGET_SCORE;
 	g_roundScore = 0;
 	g_betCount = 0;
 	g_money = 0;
@@ -34,11 +30,11 @@ void RunSession_BeginRound(void)
 
 	if (g_roundIndex <= 1)
 	{
-		g_targetScore = kInitialTargetScore;
+		g_targetScore = RUN_INITIAL_TARGET_SCORE;
 	}
 	else
 	{
-		g_targetScore += kTargetScoreStep;
+		g_targetScore += RUN_TARGET_SCORE_STEP;
 	}
 }
 
@@ -52,7 +48,7 @@ void RunSession_ApplyBetScore(int score)
 // クリア報酬を計算して所持金に加算する
 void RunSession_GrantClearReward(void)
 {
-	g_lastClearReward = g_roundScore / 10;
+	g_lastClearReward = g_roundScore / RUN_CLEAR_REWARD_DIVISOR;
 	g_money += g_lastClearReward;
 }
 
@@ -116,10 +112,10 @@ void RunSession_SetMoney(int value)
 	g_money = value;
 }
 
-// 今ラウンドの賭け上限（3回）に達したか判定する
+// 今ラウンドの賭け上限に達したか判定する
 bool RunSession_IsBetLimitReached(void)
 {
-	return g_betCount >= kMaxBetsPerRound;
+	return g_betCount >= RUN_MAX_BETS_PER_ROUND;
 }
 
 // ラウンド合計が目標スコア以上か判定する

@@ -14,7 +14,7 @@
 #include <Windows.h>
 using namespace DirectX;
 
-static SCENE scene = SCENE_TITLE;
+static SCENE scene = SCENE_GAME;
 
 #if !defined(_DEBUG)
 static void AlertDebugSceneUnavailable(const wchar_t* detail)

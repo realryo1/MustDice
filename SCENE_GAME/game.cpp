@@ -24,7 +24,7 @@ static DrawFont* g_pHintText = nullptr;
 
 static GamePhase g_phase = GAME_PHASE_ROUND_START;
 static BetKind g_betKind = BET_KIND_NONE;
-static int g_pickSum = 7;
+static int g_pickSum = BET_PINPOINT_CENTER;
 static bool g_pickOdd = true;
 static int g_die0 = 0;
 static int g_die1 = 0;
@@ -52,19 +52,19 @@ static const char* GamePhase_ToHint(GamePhase phase)
 	switch (phase)
 	{
 	case GAME_PHASE_ROUND_START:
-		return "Decide: 賭け方選択へ";
+		return "Enter,A: 賭け方選択へ";
 	case GAME_PHASE_BET_SELECT:
-		return "Decide: ピンポイント / Cancel: 奇数偶数";
+		return "Enter,A: ピンポイント / BackSpace,B: 奇数偶数";
 	case GAME_PHASE_PINPOINT_PICK:
-		return "Left/Right: 予想変更 / Decide: 確定";
+		return "Left/Right: 予想変更 / Enter,A: 確定";
 	case GAME_PHASE_ODD_EVEN_PICK:
-		return "Decide: 奇数 / Cancel: 偶数";
+		return "Enter,A: 奇数 / BackSpace,B: 偶数";
 	case GAME_PHASE_ROLL:
-		return "Decide: サイコロを振る";
+		return "Enter,A: サイコロを振る";
 	case GAME_PHASE_RESOLVE:
-		return "Decide: 次へ";
+		return "Enter,A: 次へ";
 	case GAME_PHASE_GOAL_CHECK:
-		return "Decide: 結果へ進む";
+		return "Enter,A: 結果へ進む";
 	default:
 		return "Press Decide";
 	}
@@ -81,11 +81,12 @@ static void Game_RefreshUi(void)
 	std::snprintf(
 		status,
 		sizeof(status),
-		"R%d  score %d / %d  bet %d/3  money %d",
+		"[Round%d]   score %d / %d  |  bet %d/%d  |  money %d",
 		RunSession_GetRoundIndex(),
 		RunSession_GetRoundScore(),
 		RunSession_GetTargetScore(),
 		RunSession_GetBetCount(),
+		RUN_MAX_BETS_PER_ROUND,
 		RunSession_GetMoney()
 	);
 
@@ -105,8 +106,9 @@ static void Game_SetPhase(GamePhase phase)
 		std::snprintf(
 			g_detailBuf,
 			sizeof(g_detailBuf),
-			"目標スコア %d を目指せ（最大3回賭け）",
-			RunSession_GetTargetScore()
+			"目標スコア %d を目指せ（最大%d回賭け）",
+			RunSession_GetTargetScore(),
+			RUN_MAX_BETS_PER_ROUND
 		);
 		break;
 	case GAME_PHASE_BET_SELECT:
@@ -116,7 +118,7 @@ static void Game_SetPhase(GamePhase phase)
 		std::snprintf(
 			g_detailBuf,
 			sizeof(g_detailBuf),
-			"予想合計 A=%d  (倍率 x%.1f)",
+			"予想合計 = %d  (倍率 x%.1f)",
 			g_pickSum,
 			BetLogic_MultForSum(g_pickSum)
 		);
@@ -127,7 +129,7 @@ static void Game_SetPhase(GamePhase phase)
 	case GAME_PHASE_ROLL:
 		if (g_betKind == BET_KIND_PINPOINT)
 		{
-			std::snprintf(g_detailBuf, sizeof(g_detailBuf), "ピンポイント A=%d で振る", g_pickSum);
+			std::snprintf(g_detailBuf, sizeof(g_detailBuf), "ピンポイント 予想合計 = %d で振る", g_pickSum);
 		}
 		else
 		{
@@ -176,7 +178,7 @@ void Game_Initialize(void)
 	}
 
 	g_betKind = BET_KIND_NONE;
-	g_pickSum = 7;
+	g_pickSum = BET_PINPOINT_CENTER;
 	g_pickOdd = true;
 	g_die0 = 0;
 	g_die1 = 0;
@@ -239,7 +241,7 @@ void Game_Update(void)
 		if (decide)
 		{
 			g_betKind = BET_KIND_PINPOINT;
-			g_pickSum = 7;
+			g_pickSum = BET_PINPOINT_CENTER;
 			Game_SetPhase(GAME_PHASE_PINPOINT_PICK);
 		}
 		else if (cancel)
@@ -292,13 +294,13 @@ void Game_Update(void)
 				std::snprintf(
 					g_detailBuf,
 					sizeof(g_detailBuf),
-					"A=%d / %d+%d=%d / x%.1f-%.1f / %+d",
+					"予想合計 = %d / 出目「%d+%d=%d」/ 基礎倍率:x%.1f - %.1f / %+d",
 					g_pickSum,
 					g_die0,
 					g_die1,
 					g_rolledSum,
 					BetLogic_MultForSum(g_pickSum),
-					0.1f * static_cast<float>(diff),
+					BET_PINPOINT_STEP * static_cast<float>(diff),
 					g_lastScore
 				);
 			}
@@ -309,13 +311,13 @@ void Game_Update(void)
 				std::snprintf(
 					g_detailBuf,
 					sizeof(g_detailBuf),
-					"%s / %d+%d=%d / %s x%.1f / %+d",
-					g_pickOdd ? "奇数" : "偶数",
+					"%s / 出目「%d+%d=%d」 / 【%s】x%.1f / %+d",
+					g_pickOdd ? "奇数を選択" : "偶数を選択",
 					g_die0,
 					g_die1,
 					g_rolledSum,
-					hit ? "HIT" : "MISS",
-					hit ? 1.2f : 0.6f,
+					hit ? "HIT!!!" : "MISS……",
+					BetLogic_OddEvenMult(hit),
 					g_lastScore
 				);
 			}

@@ -25,7 +25,7 @@ void Shop_Initialize(void)
 		RunSession_GetRoundIndex(),
 		RunSession_GetLastClearReward(),
 		RunSession_GetMoney(),
-		RunSession_GetTargetScore() + 50
+		RunSession_GetTargetScore() + RUN_TARGET_SCORE_STEP
 	);
 
 	g_pShopText = new DrawFont(
