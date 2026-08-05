@@ -207,6 +207,7 @@
     <ClCompile Include="SCENE_GAME\game.cpp" />
     <ClCompile Include="SCENE_RESULT\result.cpp" />
     <ClCompile Include="app\scene.cpp" />
+    <ClCompile Include="app\run_session.cpp" />
     <ClCompile Include="shader\renderer.cpp" />
     <ClCompile Include="SCENE_TITLE\title.cpp" />
     <ClCompile Include="SCENE_SHOP\shop.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="framework\mouse.h" />
     <ClInclude Include="SCENE_GAME\game.h" />
     <ClInclude Include="app\scene.h" />
+    <ClInclude Include="app\run_session.h" />
     <ClInclude Include="SCENE_RESULT\result.h" />
     <ClInclude Include="shader\shadermanager.h" />
     <ClInclude Include="shader\renderer.h" />

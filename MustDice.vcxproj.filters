@@ -97,6 +97,9 @@
     <ClCompile Include="app\scene.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="app\run_session.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
     <ClCompile Include="framework\mouse.cpp">
       <Filter>フレームワーク\input</Filter>
     </ClCompile>
@@ -238,6 +241,9 @@
       <Filter>SCENE_GAME</Filter>
     </ClInclude>
     <ClInclude Include="app\scene.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\run_session.h">
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app\version.h">

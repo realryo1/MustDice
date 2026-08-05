@@ -89,3 +89,8 @@
 ## フローチャート
 
 [document_game\flowchart.md](document_game\flowchart.md)
+
+## 実装ドキュメント
+
+- ラン共有状態（シーン横断）: [document_ingame/run_session.md](../document_ingame/run_session.md)
+

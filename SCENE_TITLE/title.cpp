@@ -4,6 +4,7 @@
 #include "clickfont.h"
 #include "input_manager.h"
 #include "fade.h"
+#include "run_session.h"
 
 using namespace DirectX;
 
@@ -60,6 +61,7 @@ void Title_Update(void)
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
 		//シーン遷移はSetSceneFadeのみ
+		RunSession_Reset();
 		SetSceneFade(SCENE_GAME);
 	}
 
