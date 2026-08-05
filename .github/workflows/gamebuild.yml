@@ -29,7 +29,7 @@ jobs:
         }
         
         # Zipの名前 $version は変数
-        $archiveName = "MustDice_v${version}_SelfEditorBundle.zip"
+        $archiveName = "MustDice_v${version}.zip"
 
         Write-Output "number=$version" >> $env:GITHUB_OUTPUT
         Write-Output "archive_name=$archiveName" >> $env:GITHUB_OUTPUT
@@ -60,7 +60,7 @@ jobs:
         
         # Copy-Item -Path "options.yml" -Destination "release" -Force
         Copy-Item -Path "readme.md" -Destination "release" -Force
-        Copy-Item -Path "document_ingame" -Destination "release" -Force
+        Copy-Item -Path "document_ingame" -Destination "release" -Recurse -Force
         Copy-Item -Path "x64/Release/*.dll" -Destination "release" -Force 
         Copy-Item -Path "assimp-vc143-mt.dll" -Destination "release" -Force 
         Copy-Item -Path "asset" -Destination "release" -Recurse -Force
