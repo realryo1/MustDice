@@ -187,34 +187,34 @@ void Game_Initialize(void)
 	g_detailBuf[0] = '\0';
 
 	g_pPhaseText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 90.0f },
-		36.0f,
+		{ SCREEN_WIDTH / 2.0f, 70.0f },
+		20.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
 		"GAME"
 	);
 
 	g_pStatusText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 40.0f },
-		22.0f,
+		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 3.0f },
+		40.0f,
 		0.0f,
-		{ 0.9f, 0.9f, 0.9f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
 		""
 	);
 
 	g_pDetailText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 10.0f },
-		24.0f,
+		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f},
+	30.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 0.85f, 1.0f },
 		""
 	);
 
 	g_pHintText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 70.0f },
-		20.0f,
+		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 110.0f },
+		30.0f,
 		0.0f,
-		{ 0.8f, 0.8f, 0.8f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
 		""
 	);
 
