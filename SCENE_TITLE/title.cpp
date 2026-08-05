@@ -29,7 +29,7 @@ void Title_Initialize(void)
 		48.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		"TITLE たいとるだよー"
+		"MustDice"
 	);
 
 	g_pHintText = new DrawFont(
@@ -37,7 +37,7 @@ void Title_Initialize(void)
 		28.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Press Decide"
+		"Press Enter/A"
 	);
 
 	g_pDebugButton = new ClickFont(
@@ -72,8 +72,11 @@ void Title_Update(void)
 	g_pNaiyo->AddRot(-360.0f * (1.0f / FPS / 4));
 
 	//clickfontはupdateとisclick両方必要
+	//Debugのみ計算
+	#if defined(_DEBUG)
 	g_pDebugButton->Update();
 	if (g_pDebugButton->IsClick())SetSceneFade(SCENE_DEBUG);
+	#endif
 }
 
 void Title_Draw(void)
@@ -81,7 +84,11 @@ void Title_Draw(void)
 	if (g_pNaiyo) g_pNaiyo->Draw();
 	if (g_pTitleText) g_pTitleText->Draw();
 	if (g_pHintText) g_pHintText->Draw();
+
+	//Debugのみ描画
+	#if defined(_DEBUG)
 	if (g_pDebugButton) g_pDebugButton->Draw();
+	#endif
 }
 
 void Title_Finalize(void)

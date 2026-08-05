@@ -49,7 +49,7 @@ void Shop_Initialize(void)
 		22.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Decide: 次ラウンドへ（購入はα未実装）"
+		"Press Enter/A: 次ラウンドへ（購入はα未実装）"
 	);
 }
 

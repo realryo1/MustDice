@@ -26,7 +26,7 @@ void Template_Initialize(void)
 		28.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Press Decide"
+		"Press Enter/A"
 	);
 
 	g_pNaiyo = new Sprite2D(

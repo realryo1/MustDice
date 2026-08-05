@@ -47,7 +47,7 @@ void Result_Initialize(void)
 		22.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Decide: タイトルへ"
+		"Press Enter/A: タイトルへ"
 	);
 }
 
