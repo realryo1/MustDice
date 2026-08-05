@@ -5,6 +5,7 @@
 static std::mt19937 g_rng;
 static bool g_rngReady = false;
 
+// ハードウェア乱数でサイコロ用RNGを初期化する
 void BetLogic_SeedFromDevice(void)
 {
 	std::random_device rd;
@@ -12,12 +13,14 @@ void BetLogic_SeedFromDevice(void)
 	g_rngReady = true;
 }
 
+// 指定シードでサイコロ用RNGを初期化する
 void BetLogic_SetSeed(unsigned int seed)
 {
 	g_rng.seed(seed);
 	g_rngReady = true;
 }
 
+// RNG未初期化ならデバイスシードで用意する
 static void BetLogic_EnsureRng(void)
 {
 	if (!g_rngReady)
@@ -26,6 +29,7 @@ static void BetLogic_EnsureRng(void)
 	}
 }
 
+// 合計出目に対応するピンポイント倍率を返す
 float BetLogic_MultForSum(int sum)
 {
 	if (sum < BET_SUM_MIN) sum = BET_SUM_MIN;
@@ -35,6 +39,7 @@ float BetLogic_MultForSum(int sum)
 	return 1.0f + 0.1f * static_cast<float>(distFromCenter);
 }
 
+// 6面サイコロを2個振り、各出目を書き出す
 void BetLogic_Roll2d6(int* outDie0, int* outDie1)
 {
 	BetLogic_EnsureRng();
@@ -43,11 +48,13 @@ void BetLogic_Roll2d6(int* outDie0, int* outDie1)
 	if (outDie1) *outDie1 = dist(g_rng);
 }
 
+// 浮動小数スコアを四捨五入して整数にする
 static int BetLogic_RoundToInt(float value)
 {
 	return static_cast<int>(std::lround(value));
 }
 
+// ピンポイント賭けの得点を計算する
 int BetLogic_ScorePinpoint(int pickSum, int rolledSum)
 {
 	const float mult = BetLogic_MultForSum(pickSum);
@@ -56,6 +63,7 @@ int BetLogic_ScorePinpoint(int pickSum, int rolledSum)
 	return BetLogic_RoundToInt(static_cast<float>(BET_BASE_SCORE) * factor);
 }
 
+// 奇数/偶数賭けの得点を計算する
 int BetLogic_ScoreOddEven(bool pickOdd, int rolledSum)
 {
 	const bool hit = (BetLogic_IsOdd(rolledSum) == pickOdd);
@@ -63,6 +71,7 @@ int BetLogic_ScoreOddEven(bool pickOdd, int rolledSum)
 	return BetLogic_RoundToInt(static_cast<float>(BET_BASE_SCORE) * factor);
 }
 
+// 合計が奇数かどうかを返す
 bool BetLogic_IsOdd(int sum)
 {
 	return (sum % 2) != 0;
