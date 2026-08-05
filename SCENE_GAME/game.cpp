@@ -368,7 +368,7 @@ void Game_Update(void)
 		break;
 
 	case GAME_PHASE_GOAL_CHECK:
-		if (decide)
+		if (decide && GetFadeState() == FADE_NONE)
 		{
 			if (RunSession_IsTargetMet())
 			{

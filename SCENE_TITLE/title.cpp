@@ -58,7 +58,7 @@ void Title_Update(void)
 	// input_manager.hのInput_IsActionDown,Triggerを使用する。
 	// document\input.mdを参照のこと。
 
-	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
+	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE) && GetFadeState() == FADE_NONE)
 	{
 		//シーン遷移はSetSceneFadeのみ
 		RunSession_Reset();

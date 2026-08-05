@@ -55,7 +55,7 @@ void Shop_Initialize(void)
 
 void Shop_Update(void)
 {
-	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
+	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE) && GetFadeState() == FADE_NONE)
 	{
 		SetSceneFade(SCENE_GAME);
 	}

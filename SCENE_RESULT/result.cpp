@@ -53,7 +53,7 @@ void Result_Initialize(void)
 
 void Result_Update(void)
 {
-	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
+	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE) && GetFadeState() == FADE_NONE)
 	{
 		RunSession_Reset();
 		SetSceneFade(SCENE_TITLE);
