@@ -20,10 +20,14 @@
 | [`document_framework/`](document_framework/) | フレームワーク本体の使い方・API・仕様。描画・入力・フォントなど共通基盤向け  |
 | [`document_ingame/`](document_ingame/) | ゲーム側（インゲーム）の資料。権利表記やコンテンツ固有のメモなど |
 
+大きな機能追加/修正後はframework,ingame関わらず適切にdocumentを更新する。
+
 ### 初めに見るものは？
 フレームワークを触るときは [framework_usage.md](document_framework\framework_usage.md)、
 
 ゲームの要素にかかわるものは[about_game.md](document_ingame\about_game.md)を見る。
+
+随時更新する進捗管理リスト[progress.md](document_ingame\progress.md)
 
 ## デバッグシーン（`SCENE_DEBUG`）
 

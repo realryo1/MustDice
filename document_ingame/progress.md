@@ -1,6 +1,6 @@
 # MustDice 進捗リスト
 
-最終更新の目安: α（テキスト賭けループが遊べる状態）
+最終更新の目安: α（テキスト賭けループが遊べる状態／安定化一通り済み）
 
 凡例: `[x]` 完了 / `[ ]` 未着手・α対象外
 
@@ -10,7 +10,9 @@
 - [x] フェード遷移（`SetSceneFade`）
 - [x] ラン共有状態（`run_session`）
 - [x] GAME 内フェーズ状態機械
-- [x] フェーズ戻り（Esc / X）
+- [x] フェーズ戻り（Esc / X = `INPUT_ACTION_BACK`）
+- [x] `BeginRound` を Game 入場時のみに一本化
+- [x] フェード中の連打ガード（クリア報酬の二重加算防止など）
 - [ ] ポーズ画面
 - [ ] スレスパ風マップ移動
 
@@ -20,7 +22,9 @@
 - [x] 奇数 / 偶数
 - [x] 2d6 乱数ロール
 - [x] 倍率・スコア計算（`bet_logic`）
+- [x] ルール定数の明示（マジックナンバー整理）
 - [x] 1ラウンド最大 3 回賭け
+- [x] 出目確定時（RESOLVE 入場）にスコア加算
 - [x] 目標スコア判定 → SHOP / RESULT
 - [x] クリア報酬（`roundScore / 10`）
 - [x] 次ラウンドで目標 +50
@@ -52,7 +56,7 @@
 
 ## ドキュメント
 
-- [x] [about_game.md](about_game.md)（ルール正本）
-- [x] [flowchart.md](flowchart.md)
+- [x] [about_game.md](about_game.md)（ルール正本・αルール追記済み）
+- [x] [flowchart.md](flowchart.md)（about_game に合わせて最小整合）
 - [x] [run_session.md](run_session.md)
 - [x] 本進捗リスト
