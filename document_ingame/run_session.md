@@ -27,7 +27,7 @@
 | 関数 | タイミング |
 |------|------------|
 | `RunSession_Reset()` | タイトル開始時、リザルトからタイトルへ戻る時 |
-| `RunSession_BeginRound()` | 新規ラウンド開始（Title→Game 初回、Shop→Game 前） |
+| `RunSession_BeginRound()` | `SCENE_GAME` 入場時（`Game_Initialize`）。ラウンド番号+1・スコアリセット・目標更新 |
 | `RunSession_ApplyBetScore(int score)` | 1回の賭けスコアを加算し `betCount++` |
 | `RunSession_GrantClearReward()` | 目標達成時。`money += roundScore / 10` |
 | `RunSession_IsTargetMet()` | `roundScore >= targetScore` |
@@ -37,8 +37,8 @@
 ## シーンとの関係
 
 ```
-TITLE  --Reset-->  GAME(BeginRound if needed)
-GAME   --クリア + GrantClearReward-->  SHOP  --BeginRound-->  GAME
+TITLE  --Reset-->  GAME --BeginRound--> (プレイ)
+GAME   --クリア + GrantClearReward-->  SHOP  -->  GAME --BeginRound--> (次ラウンド)
 GAME   --敗北-->  RESULT  --Reset-->  TITLE
 ```
 

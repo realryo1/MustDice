@@ -172,10 +172,8 @@ static void Game_SetPhase(GamePhase phase)
 
 void Game_Initialize(void)
 {
-	if (RunSession_GetRoundIndex() <= 0)
-	{
-		RunSession_BeginRound();
-	}
+	// ラウンド開始は常に GAME 入場時に行う（Shop 側では進めない）
+	RunSession_BeginRound();
 
 	g_betKind = BET_KIND_NONE;
 	g_pickSum = BET_PINPOINT_CENTER;

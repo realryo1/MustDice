@@ -20,7 +20,7 @@ void Result_Initialize(void)
 	std::snprintf(
 		status,
 		sizeof(status),
-		"R%d  score %d / %d",
+		"[Round%d]  score %d / %d",
 		RunSession_GetRoundIndex(),
 		RunSession_GetRoundScore(),
 		RunSession_GetTargetScore()

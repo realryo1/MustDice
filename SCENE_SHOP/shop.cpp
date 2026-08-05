@@ -21,7 +21,7 @@ void Shop_Initialize(void)
 	std::snprintf(
 		status,
 		sizeof(status),
-		"R%d clear  +%d money  total %d  next target %d",
+		"[Round%d] clear!  +%d money  total %d  next target %d",
 		RunSession_GetRoundIndex(),
 		RunSession_GetLastClearReward(),
 		RunSession_GetMoney(),
@@ -57,7 +57,6 @@ void Shop_Update(void)
 {
 	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
 	{
-		RunSession_BeginRound();
 		SetSceneFade(SCENE_GAME);
 	}
 }
