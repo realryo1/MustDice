@@ -45,6 +45,8 @@ g_pNaiyo = new Sprite2D(
 	BLENDSTATE_NONE,
 	L"asset\\texture\\notfound_thumbnail.png"
 );
+
+
 ```
 **updateが一番触ることになると思う（例は決定ボタンを押してる間だけ回転）**
 
