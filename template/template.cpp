@@ -14,7 +14,7 @@ static DrawFont* g_pHintText = nullptr;
 void Template_Initialize(void)
 {
 	g_pTemplateText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 40.0f },
+		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f - 40.0f },
 		48.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
@@ -22,7 +22,7 @@ void Template_Initialize(void)
 	);
 
 	g_pHintText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 40.0f },
+		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f + 40.0f },
 		28.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },

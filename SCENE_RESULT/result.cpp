@@ -27,7 +27,7 @@ void Result_Initialize(void)
 	);
 
 	g_pResultText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 60.0f },
+		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f - 60.0f },
 		48.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
@@ -35,7 +35,7 @@ void Result_Initialize(void)
 	);
 
 	g_pStatusText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f },
+		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f },
 		24.0f,
 		0.0f,
 		{ 0.9f, 0.9f, 0.9f, 1.0f },
@@ -43,7 +43,7 @@ void Result_Initialize(void)
 	);
 
 	g_pHintText = new DrawFont(
-		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f + 50.0f },
+		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f + 50.0f },
 		22.0f,
 		0.0f,
 		{ 0.8f, 0.8f, 0.8f, 1.0f },

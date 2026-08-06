@@ -717,7 +717,7 @@ void DrawFont::Draw() {
 
 	SetWorldMatrix(XMMatrixIdentity());
 	SetViewMatrix(XMMatrixIdentity());
-	SetProjectionMatrix(XMMatrixOrthographicOffCenterLH(0.0f, DRAW_SCREEN_WIDTH, DRAW_SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f));
+	SetProjectionMatrix(XMMatrixOrthographicOffCenterLH(0.0f, DRAW_SCREEN_X, DRAW_SCREEN_Y, 0.0f, 0.0f, 1.0f));
 
 	SetDepthEnable(false);
 

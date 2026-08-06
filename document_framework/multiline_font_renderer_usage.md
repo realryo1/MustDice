@@ -27,7 +27,7 @@ static MultiLineDrawFont* g_pMulti = nullptr;
 void Sample_Initialize()
 {
 	g_pMulti = new MultiLineDrawFont(
-		{ SCREEN_WIDTH * 0.5f, 140.0f },
+		{ SCREEN_X * 0.5f, 140.0f },
 		30.0f,
 		0.0f,
 		{ 0.9f, 0.95f, 1.0f, 1.0f },
@@ -56,4 +56,4 @@ void Sample_Finalize()
 ## 注意点
 - 自動折り返しはありません。改行は `\n` を明示してください。
 - GetLineRects の矩形は行単位判定（MultiLineClickFont 等）に利用できます。
-- 描画座標の基準は SCREEN_WIDTH/SCREEN_HEIGHT です。
+- 描画座標の基準は SCREEN_X/SCREEN_Y です。

@@ -19,7 +19,7 @@ static void SetupSprite2DMatrices()
 {
 	const XMMATRIX world = XMMatrixIdentity();
 	const XMMATRIX view = XMMatrixIdentity();
-	const XMMATRIX proj = XMMatrixOrthographicOffCenterLH(0.0f, DRAW_SCREEN_WIDTH, DRAW_SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f);
+	const XMMATRIX proj = XMMatrixOrthographicOffCenterLH(0.0f, DRAW_SCREEN_X, DRAW_SCREEN_Y, 0.0f, 0.0f, 1.0f);
 
 	SetWorldMatrix(world);
 	SetViewMatrix(view);
@@ -65,7 +65,7 @@ bool ClickSprite2D::IsClick()
 		return false;
 	}
 
-	const float targetAspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+	const float targetAspect = SCREEN_X / SCREEN_Y;
 	const float windowAspect = clientW / clientH;
 
 	float vpX, vpY, vpW, vpH;
@@ -84,8 +84,8 @@ bool ClickSprite2D::IsClick()
 		vpY = (clientH - vpH) * 0.5f;
 	}
 
-	const float logicalX = (ms.x - vpX) / vpW * SCREEN_WIDTH;
-	const float logicalY = (ms.y - vpY) / vpH * SCREEN_HEIGHT;
+	const float logicalX = (ms.x - vpX) / vpW * SCREEN_X;
+	const float logicalY = (ms.y - vpY) / vpH * SCREEN_Y;
 
 	const bool inArea =
 		(logicalX >= m_Position.x - m_Scale.x && logicalX <= m_Position.x + m_Scale.x) &&

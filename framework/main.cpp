@@ -142,7 +142,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	//ウィンドウサイズの調整
 	//クライアント領域（描画領域）のサイズを表す矩形
-	RECT window_rect = { 0, 0, (LONG)DRAW_SCREEN_WIDTH, (LONG)DRAW_SCREEN_HEIGHT };
+	RECT window_rect = { 0, 0, (LONG)DRAW_SCREEN_X, (LONG)DRAW_SCREEN_Y };
 	//ウィンドウスタイルの設定
 	DWORD window_style = WS_OVERLAPPEDWINDOW;
 	//指定のクライアント領域＋ウィンドウスタイルでの全体のサイズを計算
@@ -155,20 +155,20 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	RECT workArea;
 	SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
 	// ウィンドウボーダー分を計算（AdjustWindowRect済みの全体サイズ - クライアントサイズ）
-	int border_W = window_width  - (int)DRAW_SCREEN_WIDTH;
-	int border_H = window_height - (int)DRAW_SCREEN_HEIGHT;
+	int border_W = window_width  - (int)DRAW_SCREEN_X;
+	int border_H = window_height - (int)DRAW_SCREEN_Y;
 	// 作業領域の70%に収まる最大クライアントサイズ
 	int max_client_W = (int)((workArea.right  - workArea.left) * 0.7f) - border_W;
 	int max_client_H = (int)((workArea.bottom - workArea.top)  * 0.7f) - border_H;
 	if (max_client_W < 1) max_client_W = 1;
 	if (max_client_H < 1) max_client_H = 1;
 	// 16:9（DRAW_SCREEN比率）を保ちながら縮小スケールを計算
-	float scale_W = (float)max_client_W / DRAW_SCREEN_WIDTH;
-	float scale_H = (float)max_client_H / DRAW_SCREEN_HEIGHT;
+	float scale_W = (float)max_client_W / DRAW_SCREEN_X;
+	float scale_H = (float)max_client_H / DRAW_SCREEN_Y;
 	float client_scale = (scale_W < scale_H) ? scale_W : scale_H;
 	if (client_scale > 1.0f) client_scale = 1.0f;
-	window_width  = (int)(DRAW_SCREEN_WIDTH  * client_scale) + border_W;
-	window_height = (int)(DRAW_SCREEN_HEIGHT * client_scale) + border_H;
+	window_width  = (int)(DRAW_SCREEN_X  * client_scale) + border_W;
+	window_height = (int)(DRAW_SCREEN_Y * client_scale) + border_H;
 
 	//ウィンドウの作成
 	HWND hWnd = CreateWindow(

@@ -79,8 +79,8 @@ static ID3D11ShaderResourceView* g_FaceShadowSRV = NULL;
 static ID3D11Buffer* g_FaceShadowBuffer = NULL; // b9: 4面分の行列＋濃さ
 
 // ウィンドウクライアントサイズ（ビューポート計算用）
-static float g_ClientWidth  = DRAW_SCREEN_WIDTH;
-static float g_ClientHeight = DRAW_SCREEN_HEIGHT;
+static float g_ClientWidth  = DRAW_SCREEN_X;
+static float g_ClientHeight = DRAW_SCREEN_Y;
 
 // バックバッファ情報（リサイズ時に参照）
 static D3D11_TEXTURE2D_DESC g_BackBufferDesc;
@@ -162,7 +162,7 @@ static void configureBackBuffer(void)
 // =====================================================
 static void Direct3D_SetViewport2D(void)
 {
-	const float targetAspect = DRAW_SCREEN_WIDTH / DRAW_SCREEN_HEIGHT;
+	const float targetAspect = DRAW_SCREEN_X / DRAW_SCREEN_Y;
 	const float windowAspect = g_ClientWidth / g_ClientHeight;
 
 	float vpW, vpH, vpX = 0.0f, vpY = 0.0f;
@@ -202,7 +202,7 @@ static void Direct3D_SetViewport2D(void)
 // =====================================================
 static void Direct3D_SetViewport3D(void)
 {
-	const float targetAspect = DRAW_SCREEN_WIDTH / DRAW_SCREEN_HEIGHT;
+	const float targetAspect = DRAW_SCREEN_X / DRAW_SCREEN_Y;
 	const float windowAspect = g_ClientWidth / g_ClientHeight;
 
 	float vpW, vpH, vpX = 0.0f, vpY = 0.0f;
@@ -286,7 +286,7 @@ void ResetWorldViewProjection3D(void)
 void SetWorldViewProjection2D( void )
 {
 	//2D用正射影行列をセット
-	g_ProjectionMatrix = XMMatrixOrthographicOffCenterLH(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f);
+	g_ProjectionMatrix = XMMatrixOrthographicOffCenterLH(0.0f, SCREEN_X, SCREEN_Y, 0.0f, 0.0f, 1.0f);
 	SetProjectionMatrix(g_ProjectionMatrix);
 	//行列を単位行列にして初期化
 	g_ViewMatrix = XMMatrixIdentity();
@@ -490,8 +490,8 @@ HRESULT InitRenderer(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	GetClientRect(hWnd, &clientRect);
 	UINT initClientW = (UINT)(clientRect.right  - clientRect.left);
 	UINT initClientH = (UINT)(clientRect.bottom - clientRect.top);
-	if (initClientW == 0) initClientW = (UINT)SCREEN_WIDTH;
-	if (initClientH == 0) initClientH = (UINT)SCREEN_HEIGHT;
+	if (initClientW == 0) initClientW = (UINT)SCREEN_X;
+	if (initClientH == 0) initClientH = (UINT)SCREEN_Y;
 	sd.BufferDesc.Width  = initClientW;
 	sd.BufferDesc.Height = initClientH;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;

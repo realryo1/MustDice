@@ -27,7 +27,7 @@ static ClickFont* g_pStartText = nullptr;
 void Sample_Initialize()
 {
 	g_pStartText = new ClickFont(
-		{ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.75f },
+		{ SCREEN_X * 0.5f, SCREEN_Y * 0.75f },
 		48.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },

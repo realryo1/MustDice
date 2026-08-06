@@ -34,7 +34,7 @@ static MultiLineClickFont* g_pMenu = nullptr;
 void Sample_Initialize()
 {
 	g_pMenu = new MultiLineClickFont(
-		{ SCREEN_WIDTH * 0.5f, 220.0f },
+		{ SCREEN_X * 0.5f, 220.0f },
 		40.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },

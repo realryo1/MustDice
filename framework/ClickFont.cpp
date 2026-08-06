@@ -58,10 +58,10 @@ ClickFont::ClickFont(XMFLOAT2 pos, float fontSize, float rotation,
 bool ClickFont::HitTest(int mouseX, int mouseY) const
 {
 	// ウィンドウサイズが変わっても正しく判定するため、
-	// マウス座標（クライアントピクセル）を論理座標（SCREEN_WIDTH/HEIGHT基準）に変換する
+	// マウス座標（クライアントピクセル）を論理座標（SCREEN_X/HEIGHT基準）に変換する
 	const float clientW = Direct3D_GetClientWidth();
 	const float clientH = Direct3D_GetClientHeight();
-	const float targetAspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+	const float targetAspect = SCREEN_X / SCREEN_Y;
 	const float windowAspect = clientW / clientH;
 
 	// Direct3D_SetViewport2D() と同じ黒帯計算
@@ -82,8 +82,8 @@ bool ClickFont::HitTest(int mouseX, int mouseY) const
 	}
 
 	// ビューポート内の相対位置 → 論理座標へ
-	const float logicalX = (mouseX - vpX) / vpW * SCREEN_WIDTH;
-	const float logicalY = (mouseY - vpY) / vpH * SCREEN_HEIGHT;
+	const float logicalX = (mouseX - vpX) / vpW * SCREEN_X;
+	const float logicalY = (mouseY - vpY) / vpH * SCREEN_Y;
 
 	const XMFLOAT2 pos = GetPos();
 	const float halfW = m_HitSize.x * 0.5f;

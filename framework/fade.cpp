@@ -25,8 +25,8 @@ static Fade* g_pFade = nullptr;
 // コンストラクタ
 Fade::Fade()
 	: Sprite2D(
-		XMFLOAT2(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f),	// 位置
-		XMFLOAT2(SCREEN_WIDTH, SCREEN_HEIGHT),					// サイズ
+		XMFLOAT2(SCREEN_X / 2.0f, SCREEN_Y / 2.0f),	// 位置
+		XMFLOAT2(SCREEN_X, SCREEN_Y),					// サイズ
 		0.0f,													// 回転
 		XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f),						// 色（RGBA）アルファ値0
 		BLENDSTATE_ALFA,										// ブレンドステート

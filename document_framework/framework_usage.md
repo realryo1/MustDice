@@ -141,7 +141,7 @@ bool connected = Gamepad_IsConnected(0);
 
 ヘッダ: `framework/sprite2d.h`
 
-座標は `SCREEN_WIDTH(1280) × SCREEN_HEIGHT(720)` の論理座標。
+座標は `SCREEN_X(1280) × SCREEN_Y(720)` の論理座標。
 
 ```cpp
 Sprite2D sprite(
@@ -737,7 +737,7 @@ python tool/rename_project.py                    # 対話モード
 
 ## 注意点など
 
-- **座標は必ず** `SCREEN_WIDTH/HEIGHT` **基準**。`DRAW_SCREEN_`* を位置計算に使わない。
+- **座標は必ず** `SCREEN_X/HEIGHT` **基準**。`DRAW_SCREEN_`* を位置計算に使わない。
 - **2D / Font は** `Draw()` **単体で完結**。2D 前に `SetDepthEnable(false)`。
 - **3D は** `SetDepthEnable(true)`**、2D 前に** `false`。ビューポートもこれに連動。
 - `Fade_Draw()` **は他 UI より前面**（`main` が Present 直前に呼ぶ）。

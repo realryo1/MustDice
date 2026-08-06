@@ -17,11 +17,11 @@
 ### 2.1 `Direct3D_SetViewport2D()`（内部）
 
 **役割**
-- 2D 向けに `DRAW_SCREEN_WIDTH x DRAW_SCREEN_HEIGHT` の比率を保つビューポートを設定
+- 2D 向けに `DRAW_SCREEN_X x DRAW_SCREEN_Y` の比率を保つビューポートを設定
 - ウィンドウアスペクトに応じて中央寄せのレターボックス/ピラーボックスを作る
 
 **挙動**
-- `targetAspect = DRAW_SCREEN_WIDTH / DRAW_SCREEN_HEIGHT`
+- `targetAspect = DRAW_SCREEN_X / DRAW_SCREEN_Y`
 - `windowAspect = g_ClientWidth / g_ClientHeight`
 - `windowAspect > targetAspect`（横長）:
   - 縦基準 → `vpH = g_ClientHeight`, `vpW = g_ClientHeight * targetAspect`（左右余白）
@@ -61,7 +61,7 @@
 
 - 戻り値は `float`
 - `Direct3D_ResizeWindow()` で更新される
-- 初期値はそれぞれ `DRAW_SCREEN_WIDTH` / `DRAW_SCREEN_HEIGHT`
+- 初期値はそれぞれ `DRAW_SCREEN_X` / `DRAW_SCREEN_Y`
 
 ## 3. バックバッファと深度バッファのリサイズ仕様
 
@@ -69,8 +69,8 @@
 
 スワップチェーンのバックバッファ解像度は次に固定される。
 
-- `BufferDesc.Width = DRAW_SCREEN_WIDTH`（3840）
-- `BufferDesc.Height = DRAW_SCREEN_HEIGHT`（2160）
+- `BufferDesc.Width = DRAW_SCREEN_X`（3840）
+- `BufferDesc.Height = DRAW_SCREEN_Y`（2160）
 
 **ウィンドウサイズに追従してバックバッファが自動変更される設計ではない。**
 
@@ -130,7 +130,7 @@
 - ビューポート計算は `g_ClientWidth` / `g_ClientHeight` 前提 → `Direct3D_ResizeWindow()` が必須
 - クライアントサイズは最低 `1.0f` に丸められる
 - バックバッファ実サイズとクライアントサイズは別概念
-- UI 配置は常に `SCREEN_WIDTH/HEIGHT`（1280×720）基準。描画解像度 `DRAW_SCREEN_*` を位置計算に使わない
+- UI 配置は常に `SCREEN_X/HEIGHT`（1280×720）基準。描画解像度 `DRAW_SCREEN_*` を位置計算に使わない
 
 ## 7. まとめ
 

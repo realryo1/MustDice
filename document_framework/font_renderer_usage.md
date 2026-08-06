@@ -28,7 +28,7 @@ static DrawFont* g_pFont = nullptr;
 void Sample_Initialize()
 {
 	g_pFont = new DrawFont(
-		{ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f },
+		{ SCREEN_X * 0.5f, SCREEN_Y * 0.5f },
 		36.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
@@ -57,6 +57,6 @@ void Sample_Finalize()
 
 ## 注意点
 - 改行は想定していません。複数行は MultiLineDrawFont を使用してください。
-- 座標は SCREEN_WIDTH/SCREEN_HEIGHT 基準で指定してください。
+- 座標は SCREEN_X/SCREEN_Y 基準で指定してください。
 - SetColor はアトラステクスチャ更新を伴うため、毎フレーム連打は避けてください。
 - フォント実体は `asset/font/KaiseiDecol-Medium.ttf`。`Font_InitializeGlobalData()` が事前に必要です。

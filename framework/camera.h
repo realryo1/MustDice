@@ -41,7 +41,7 @@ public:
 		XMFLOAT3 atpos = XMFLOAT3(0.0f, 0.0f, 0.0f),
 		XMFLOAT3 upvec = XMFLOAT3(0.0f, 1.0f, 0.0f),
 		float fov = 45.0f,
-		float aspect = DRAW_SCREEN_WIDTH / DRAW_SCREEN_HEIGHT,
+		float aspect = DRAW_SCREEN_X / DRAW_SCREEN_Y,
 		float near_ = 0.2f,//アンダーバーは定数回避
 		float far_ = 500.0f)
 		:m_Pos(pos), m_AtPos(atpos), m_UpVec(upvec),

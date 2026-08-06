@@ -123,7 +123,7 @@ int MultiLineClickFont::HitTestLineIndex(int mouseX, int mouseY) const
 {
 const float clientW = Direct3D_GetClientWidth();
 const float clientH = Direct3D_GetClientHeight();
-const float targetAspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+const float targetAspect = SCREEN_X / SCREEN_Y;
 const float windowAspect = clientW / clientH;
 
 float vpX;
@@ -145,8 +145,8 @@ vpX = 0.0f;
 vpY = (clientH - vpH) * 0.5f;
 }
 
-const float logicalX = (mouseX - vpX) / vpW * SCREEN_WIDTH;
-const float logicalY = (mouseY - vpY) / vpH * SCREEN_HEIGHT;
+const float logicalX = (mouseX - vpX) / vpW * SCREEN_X;
+const float logicalY = (mouseY - vpY) / vpH * SCREEN_Y;
 
 for (size_t i = 0; i < m_LineRects.size(); ++i)
 {
