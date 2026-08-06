@@ -26,7 +26,7 @@ void Title_Initialize(void)
 
 	g_pTitleText = new DrawFont(
 		{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f - 40.0f },
-		48.0f,
+		128.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
 		"MustDice"
@@ -68,7 +68,7 @@ void Title_Update(void)
 	// ==========================================================
 
 	//適当にぐるぐる
-	g_pTitleText->AddRot(360.0f * (1.0f / FPS / 4));
+	g_pTitleText->AddRot(360.0f * (1.0f / FPS / 1));
 	g_pNaiyo->AddRot(-360.0f * (1.0f / FPS / 4));
 
 	//clickfontはupdateとisclick両方必要
