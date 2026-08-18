@@ -127,6 +127,15 @@
     <ClCompile Include="SCENE_SHOP\shop.cpp">
       <Filter>SCENE_SHOP</Filter>
     </ClCompile>
+    <ClCompile Include="SCENE_MULTILOBBY\multilobby.cpp">
+      <Filter>SCENE_MULTILOBBY</Filter>
+    </ClCompile>
+    <ClCompile Include="SCENE_MULTIGAME\multigame.cpp">
+      <Filter>SCENE_MULTIGAME</Filter>
+    </ClCompile>
+    <ClCompile Include="SCENE_MULTIRESULT\multiresult.cpp">
+      <Filter>SCENE_MULTIRESULT</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework\camera.h">
@@ -282,6 +291,15 @@
     <ClInclude Include="SCENE_SHOP\shop.h">
       <Filter>SCENE_SHOP</Filter>
     </ClInclude>
+    <ClInclude Include="SCENE_MULTILOBBY\multilobby.h">
+      <Filter>SCENE_MULTILOBBY</Filter>
+    </ClInclude>
+    <ClInclude Include="SCENE_MULTIGAME\multigame.h">
+      <Filter>SCENE_MULTIGAME</Filter>
+    </ClInclude>
+    <ClInclude Include="SCENE_MULTIRESULT\multiresult.h">
+      <Filter>SCENE_MULTIRESULT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="app">
@@ -328,6 +346,15 @@
     </Filter>
     <Filter Include="SCENE_SHOP">
       <UniqueIdentifier>{20a60356-b6bf-40cd-979a-ad65017e5f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SCENE_MULTILOBBY">
+      <UniqueIdentifier>{8b9d5762-d842-456d-964c-90a5ada55afa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SCENE_MULTIGAME">
+      <UniqueIdentifier>{3df8303c-4fdb-4bca-95e6-b29ab9e8b402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SCENE_MULTIRESULT">
+      <UniqueIdentifier>{0d239bc0-afa0-4636-8bfd-d689cc3fe750}</UniqueIdentifier>
     </Filter>
     <Filter Include="リソース ファイル">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>

@@ -6,6 +6,9 @@
 #include "texture.h"
 #include "title.h"
 #include "result.h"
+#include "multilobby.h"
+#include "multigame.h"
+#include "multiresult.h"
 #if defined(_DEBUG)
 #include "debugscene.h"
 #endif
@@ -60,6 +63,15 @@ void Init( void )
 		DebugScene_Initialize();
 		break;
 #endif
+		case SCENE_MULTILOBBY:
+		Multilobby_Initialize();
+		break;
+		case SCENE_MULTIGAME:
+		Multigame_Initialize();
+		break;
+		case SCENE_MULTIRESULT:
+		Multiresult_Initialize();
+		break;
 		default:
 		break;
 	}
@@ -91,6 +103,15 @@ void Update( void )
 		DebugScene_Update();
 		break;
 #endif
+		case SCENE_MULTILOBBY:
+		Multilobby_Update();
+		break;
+		case SCENE_MULTIGAME:
+		Multigame_Update();
+		break;
+		case SCENE_MULTIRESULT:
+		Multiresult_Update();
+		break;
 		default:
 		break;
 	}
@@ -117,6 +138,15 @@ void Draw( void )
 		DebugScene_Draw();
 		break;
 #endif
+		case SCENE_MULTILOBBY:
+		Multilobby_Draw();
+		break;
+		case SCENE_MULTIGAME:
+		Multigame_Draw();
+		break;
+		case SCENE_MULTIRESULT:
+		Multiresult_Draw();
+		break;
 		default:
 		break;
 	}
@@ -143,6 +173,15 @@ void Finalize( void )
 		DebugScene_Finalize();
 		break;
 #endif
+		case SCENE_MULTILOBBY:
+		Multilobby_Finalize();
+		break;
+		case SCENE_MULTIGAME:
+		Multigame_Finalize();
+		break;
+		case SCENE_MULTIRESULT:
+		Multiresult_Finalize();
+		break;
 		default:
 		break;
 	}

@@ -86,7 +86,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)SCENE_DEBUG;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)SCENE_MULTILOBBY;$(ProjectDir)SCENE_MULTIGAME;$(ProjectDir)SCENE_MULTIRESULT;$(ProjectDir)SCENE_DEBUG;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,7 +105,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)SCENE_MULTILOBBY;$(ProjectDir)SCENE_MULTIGAME;$(ProjectDir)SCENE_MULTIRESULT;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,7 +124,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)SCENE_DEBUG;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)SCENE_MULTILOBBY;$(ProjectDir)SCENE_MULTIGAME;$(ProjectDir)SCENE_MULTIRESULT;$(ProjectDir)SCENE_DEBUG;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +145,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)app;$(ProjectDir)SCENE_TITLE;$(ProjectDir)SCENE_GAME;$(ProjectDir)SCENE_SHOP;$(ProjectDir)SCENE_RESULT;$(ProjectDir)SCENE_MULTILOBBY;$(ProjectDir)SCENE_MULTIGAME;$(ProjectDir)SCENE_MULTIRESULT;$(ProjectDir)shader;$(ProjectDir)framework;$(ProjectDir);$(ProjectDir)framework\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -213,6 +213,9 @@
     <ClCompile Include="shader\renderer.cpp" />
     <ClCompile Include="SCENE_TITLE\title.cpp" />
     <ClCompile Include="SCENE_SHOP\shop.cpp" />
+    <ClCompile Include="SCENE_MULTILOBBY\multilobby.cpp" />
+    <ClCompile Include="SCENE_MULTIGAME\multigame.cpp" />
+    <ClCompile Include="SCENE_MULTIRESULT\multiresult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SCENE_DEBUG\debugcamera.h">
@@ -276,6 +279,9 @@
     <ClInclude Include="shader\renderer.h" />
     <ClInclude Include="SCENE_TITLE\title.h" />
     <ClInclude Include="SCENE_SHOP\shop.h" />
+    <ClInclude Include="SCENE_MULTILOBBY\multilobby.h" />
+    <ClInclude Include="SCENE_MULTIGAME\multigame.h" />
+    <ClInclude Include="SCENE_MULTIRESULT\multiresult.h" />
     <ClInclude Include="app\version.h" />
   </ItemGroup>
   <ItemGroup>
