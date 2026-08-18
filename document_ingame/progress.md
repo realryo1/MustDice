@@ -54,8 +54,16 @@
 - [ ] A役の「近いほど強い」戦闘表現（現状はスコア化済み）
 - [ ] B役の強ヒット / カスダメージ演出
 
+## マルチ対戦
+
+- [x] シーン枠 `SCENE_MULTILOBBY` / `SCENE_MULTIGAME` / `SCENE_MULTIRESULT`（ソロ `game.cpp` は未改変）
+- [x] Python 専用サーバー `server/mustdice_server.py` と `downloadstart.py`
+- [x] タイトルでローカル / マルチ分岐、接続先は `option.yml`
+- [ ] 実機での4人通しプレイ確認
+
 ## ドキュメント
 
+- [x] [multiplayer.md](multiplayer.md)
 - [x] [about_game.md](about_game.md)（ルール正本・αルール追記済み）
 - [x] [flowchart.md](flowchart.md)（about_game に合わせて最小整合）
 - [x] [run_session.md](run_session.md)

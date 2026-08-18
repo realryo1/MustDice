@@ -1,74 +1,76 @@
 ﻿#include "multiresult.h"
 #include "define.h"
 #include "font.h"
-#include "clickfont.h"
+#include "MultiLineDrawFont.h"
 #include "input_manager.h"
 #include "fade.h"
+#include "scene.h"
+#include "net_client.h"
+#include "match_session.h"
+#include <cstdio>
+#include <string>
 
 using namespace DirectX;
 
-static Sprite2D* g_pNaiyo = nullptr;
-static DrawFont* g_pMultiresultText = nullptr;
-static DrawFont* g_pHintText = nullptr;
+static DrawFont* g_pTitle = nullptr;
+static MultiLineDrawFont* g_pBody = nullptr;
 
 void Multiresult_Initialize(void)
 {
-	g_pMultiresultText = new DrawFont(
-		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f - 40.0f },
-		48.0f,
+	g_pTitle = new DrawFont(
+		{ SCREEN_X / 2.0f, 80.0f },
+		40.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		"MULTIRESULT"
+		"MATCH RESULT"
 	);
-
-	g_pHintText = new DrawFont(
-		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f + 40.0f },
-		28.0f,
+	g_pBody = new MultiLineDrawFont(
+		{ SCREEN_X / 2.0f, 280.0f },
+		24.0f,
 		0.0f,
-		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Press Enter/A"
-	);
-
-	g_pNaiyo = new Sprite2D(
-		{ 140.0f, 140.0f },
-		{ 200.0f, 200.0f },
-		0.0f,
-		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		BLENDSTATE_NONE,
-		L"asset\\texture\\notfound_thumbnail.png"
+		{ 0.95f, 0.95f, 0.95f, 1.0f },
+		""
 	);
 }
 
 void Multiresult_Update(void)
 {
-	// ===================== 入力操作について =====================
-	//
-	// コントローラー、キーボード双方の入力の実装をやりやすくするため、原則keyboard.hを直接読み取ることはしない
-	// input_manager.hのInput_IsActionDown,Triggerを使用する。
-	// document\input.mdを参照のこと。
-	//
-	// ==========================================================
-
-	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
+	MatchSession_PollNet();
+	MatchSession* ms = MatchSession_Get();
+	std::string text;
+	for (int i = 0; i < ms->playerCount; ++i)
 	{
-		SetSceneFade(SCENE_MULTIRESULT);
+		char row[128] = {};
+		std::snprintf(
+			row,
+			sizeof(row),
+			"%d位  %s  pt %.2f  1位回数 %d  累計スコア %d\n",
+			ms->players[i].lastRank,
+			ms->players[i].name,
+			ms->players[i].matchPointX100 / 100.0f,
+			ms->players[i].firstPlaceCount,
+			ms->players[i].totalRoundScore
+		);
+		text += row;
 	}
+	text += "Enter: タイトルへ";
+	if (g_pBody) g_pBody->SetText(text);
 
-	//適当にぐるぐる
-	g_pMultiresultText->AddRot(360.0f * (1.0f / FPS / 4));
-	g_pNaiyo->AddRot(-360.0f * (1.0f / FPS / 4));
+	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE) && GetFadeState() == FADE_NONE)
+	{
+		NetClient_Close();
+		SetSceneFade(SCENE_TITLE);
+	}
 }
 
 void Multiresult_Draw(void)
 {
-	if (g_pMultiresultText) g_pMultiresultText->Draw();
-	if (g_pHintText) g_pHintText->Draw();
-	if (g_pNaiyo) g_pNaiyo->Draw();
+	if (g_pTitle) g_pTitle->Draw();
+	if (g_pBody) g_pBody->Draw();
 }
 
 void Multiresult_Finalize(void)
 {
-	SAFE_DELETE(g_pMultiresultText);
-	SAFE_DELETE(g_pHintText);
-	SAFE_DELETE(g_pNaiyo);
+	SAFE_DELETE(g_pTitle);
+	SAFE_DELETE(g_pBody);
 }

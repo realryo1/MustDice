@@ -1,74 +1,101 @@
 ﻿#include "multilobby.h"
 #include "define.h"
 #include "font.h"
-#include "clickfont.h"
+#include "MultiLineDrawFont.h"
 #include "input_manager.h"
 #include "fade.h"
+#include "scene.h"
+#include "net_client.h"
+#include "match_session.h"
+#include <cstdio>
+#include <string>
 
 using namespace DirectX;
 
-static Sprite2D* g_pNaiyo = nullptr;
-static DrawFont* g_pMultilobbyText = nullptr;
-static DrawFont* g_pHintText = nullptr;
+static MultiLineDrawFont* g_pBody = nullptr;
+static DrawFont* g_pTitle = nullptr;
+static bool g_readySent = false;
 
 void Multilobby_Initialize(void)
 {
-	g_pMultilobbyText = new DrawFont(
-		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f - 40.0f },
-		48.0f,
+	g_readySent = false;
+	g_pTitle = new DrawFont(
+		{ SCREEN_X / 2.0f, 80.0f },
+		40.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		"MULTILOBBY"
+		"MULTI LOBBY"
 	);
-
-	g_pHintText = new DrawFont(
-		{ SCREEN_X / 2.0f, SCREEN_Y / 2.0f + 40.0f },
-		28.0f,
+	g_pBody = new MultiLineDrawFont(
+		{ SCREEN_X / 2.0f, 280.0f },
+		22.0f,
 		0.0f,
-		{ 0.8f, 0.8f, 0.8f, 1.0f },
-		"Press Enter/A"
-	);
-
-	g_pNaiyo = new Sprite2D(
-		{ 140.0f, 140.0f },
-		{ 200.0f, 200.0f },
-		0.0f,
-		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		BLENDSTATE_NONE,
-		L"asset\\texture\\notfound_thumbnail.png"
+		{ 0.9f, 0.9f, 0.9f, 1.0f },
+		""
 	);
 }
 
 void Multilobby_Update(void)
 {
-	// ===================== 入力操作について =====================
-	//
-	// コントローラー、キーボード双方の入力の実装をやりやすくするため、原則keyboard.hを直接読み取ることはしない
-	// input_manager.hのInput_IsActionDown,Triggerを使用する。
-	// document\input.mdを参照のこと。
-	//
-	// ==========================================================
+	MatchSession_PollNet();
+	MatchSession* ms = MatchSession_Get();
 
-	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE))
+	if (ms->lastErr != 0 && GetFadeState() == FADE_NONE)
 	{
-		SetSceneFade(SCENE_MULTILOBBY);
+		NetClient_Close();
+		SetSceneFade(SCENE_TITLE);
+		return;
 	}
 
-	//適当にぐるぐる
-	g_pMultilobbyText->AddRot(360.0f * (1.0f / FPS / 4));
-	g_pNaiyo->AddRot(-360.0f * (1.0f / FPS / 4));
+	if (ms->inMatch && GetFadeState() == FADE_NONE)
+	{
+		SetSceneFade(SCENE_MULTIGAME);
+		return;
+	}
+
+	if (Input_IsActionTrigger(INPUT_ACTION_BACK) && GetFadeState() == FADE_NONE)
+	{
+		NetClient_Close();
+		SetSceneFade(SCENE_TITLE);
+		return;
+	}
+
+	if (Input_IsActionTrigger(INPUT_ACTION_DECIDE) && !g_readySent)
+	{
+		NetClient_Send("READY");
+		g_readySent = true;
+	}
+
+	char buf[512] = {};
+	std::string names;
+	for (int i = 0; i < ms->playerCount; ++i)
+	{
+		const bool ready = (ms->readyMask & (1 << i)) != 0;
+		char row[64] = {};
+		std::snprintf(row, sizeof(row), "%s%s %s\n", ready ? "[R] " : "[ ] ", ms->players[i].name, (i == ms->myId) ? "(you)" : "");
+		names += row;
+	}
+	std::snprintf(
+		buf,
+		sizeof(buf),
+		"%s\n人数 %d  待ち列 %d  queue=%d\nEnter: Ready / Esc: 切断\n%s",
+		ms->queue ? "次の試合待ち" : "公開ロビー",
+		ms->playerCount,
+		ms->waitingBehind,
+		ms->queue,
+		names.c_str()
+	);
+	if (g_pBody) g_pBody->SetText(buf);
 }
 
 void Multilobby_Draw(void)
 {
-	if (g_pMultilobbyText) g_pMultilobbyText->Draw();
-	if (g_pHintText) g_pHintText->Draw();
-	if (g_pNaiyo) g_pNaiyo->Draw();
+	if (g_pTitle) g_pTitle->Draw();
+	if (g_pBody) g_pBody->Draw();
 }
 
 void Multilobby_Finalize(void)
 {
-	SAFE_DELETE(g_pMultilobbyText);
-	SAFE_DELETE(g_pHintText);
-	SAFE_DELETE(g_pNaiyo);
+	SAFE_DELETE(g_pTitle);
+	SAFE_DELETE(g_pBody);
 }

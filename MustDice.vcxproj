@@ -210,6 +210,9 @@
     <ClCompile Include="app\scene.cpp" />
     <ClCompile Include="app\run_session.cpp" />
     <ClCompile Include="app\bet_logic.cpp" />
+    <ClCompile Include="app\option_yml.cpp" />
+    <ClCompile Include="app\net_client.cpp" />
+    <ClCompile Include="app\match_session.cpp" />
     <ClCompile Include="shader\renderer.cpp" />
     <ClCompile Include="SCENE_TITLE\title.cpp" />
     <ClCompile Include="SCENE_SHOP\shop.cpp" />
@@ -274,6 +277,9 @@
     <ClInclude Include="app\scene.h" />
     <ClInclude Include="app\run_session.h" />
     <ClInclude Include="app\bet_logic.h" />
+    <ClInclude Include="app\option_yml.h" />
+    <ClInclude Include="app\net_client.h" />
+    <ClInclude Include="app\match_session.h" />
     <ClInclude Include="SCENE_RESULT\result.h" />
     <ClInclude Include="shader\shadermanager.h" />
     <ClInclude Include="shader\renderer.h" />

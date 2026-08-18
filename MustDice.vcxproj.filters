@@ -106,6 +106,15 @@
     <ClCompile Include="app\bet_logic.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="app\option_yml.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="app\net_client.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="app\match_session.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
     <ClCompile Include="framework\mouse.cpp">
       <Filter>フレームワーク\input</Filter>
     </ClCompile>
@@ -262,6 +271,15 @@
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app\run_session.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\option_yml.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\net_client.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\match_session.h">
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app\bet_logic.h">

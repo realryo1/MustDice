@@ -24,6 +24,7 @@
 #include "texture.h"
 #include "sound.h"
 #include "input_manager.h"
+#include "net_client.h"
 #include "input_monitor_console.h"
 #include "gamepad.h"
 #include "shadermanager.h"
@@ -421,6 +422,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	ReleaseAllTextures();
 	ReleaseAllSounds();
 	Gamepad_Finalize();
+	NetClient_Shutdown();
 	Input_Finalize();
 	InputMonitorConsole_Finalize();
 	UninitSound();
