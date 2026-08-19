@@ -40,7 +40,6 @@ enum BetKind
 static DrawFont* g_pPhaseText = nullptr;
 static DrawFont* g_pStatusText = nullptr;
 static DrawFont* g_pTimerText = nullptr;
-static DrawFont* g_pTimerCaption = nullptr;
 static DrawFont* g_pBetText = nullptr;
 static MultiLineDrawFont* g_pDetailText = nullptr;
 static DrawFont* g_pHintText = nullptr;
@@ -231,27 +230,22 @@ static void Multi_RefreshUi(void)
 			char timer[16] = {};
 			std::snprintf(timer, sizeof(timer), "%d", sec);
 			g_pTimerText->SetText(timer);
-			if (g_pTimerCaption) g_pTimerCaption->SetText("ラウンド3までに使用");
 			if (sec <= 5)
 			{
 				g_pTimerText->SetColor({ 1.0f, 0.25f, 0.2f, 1.0f });
-				if (g_pTimerCaption) g_pTimerCaption->SetColor({ 1.0f, 0.25f, 0.2f, 1.0f });
 			}
 			else if (sec <= 8)
 			{
 				g_pTimerText->SetColor({ 1.0f, 0.85f, 0.2f, 1.0f });
-				if (g_pTimerCaption) g_pTimerCaption->SetColor({ 1.0f, 0.85f, 0.2f, 1.0f });
 			}
 			else
 			{
 				g_pTimerText->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-				if (g_pTimerCaption) g_pTimerCaption->SetColor({ 0.85f, 0.85f, 0.85f, 1.0f });
 			}
 		}
 		else
 		{
 			g_pTimerText->SetText("");
-			if (g_pTimerCaption) g_pTimerCaption->SetText("");
 		}
 	}
 
@@ -370,14 +364,6 @@ void Multigame_Initialize(void)
 		96.0f,
 		0.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		"",
-		TA_END
-	);
-	g_pTimerCaption = new DrawFont(
-		{ SCREEN_X - 48.0f, 128.0f },
-		20.0f,
-		0.0f,
-		{ 0.85f, 0.85f, 0.85f, 1.0f },
 		"",
 		TA_END
 	);
@@ -571,7 +557,6 @@ void Multigame_Draw(void)
 	if (g_pPhaseText) g_pPhaseText->Draw();
 	if (g_pStatusText) g_pStatusText->Draw();
 	if (g_pTimerText) g_pTimerText->Draw();
-	if (g_pTimerCaption) g_pTimerCaption->Draw();
 	if (g_pBetText) g_pBetText->Draw();
 	if (g_pDetailText) g_pDetailText->Draw();
 	if (g_pHintText) g_pHintText->Draw();
@@ -585,7 +570,6 @@ void Multigame_Finalize(void)
 	SAFE_DELETE(g_pPhaseText);
 	SAFE_DELETE(g_pStatusText);
 	SAFE_DELETE(g_pTimerText);
-	SAFE_DELETE(g_pTimerCaption);
 	SAFE_DELETE(g_pBetText);
 	SAFE_DELETE(g_pDetailText);
 	SAFE_DELETE(g_pHintText);
