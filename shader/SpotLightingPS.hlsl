@@ -36,7 +36,7 @@ void main(in PS_IN In, out float4 outDiffuse : SV_Target)
     {
         // コーン内：中心ほど 1.0 になるように補間
         // PointLightParam.y = エッジのシャープさ調整用 pow 値
-        spot = saturate(1.0f - pow(1.0f / Light.Angle.x * angle, Light.PointLightParam.y));
+        spot = saturate(1.0f - pow(saturate(angle / Light.Angle.x), Light.PointLightParam.y));
 
         // 距離減衰（PointLightParam.x = 到達距離）
         float ofs = saturate(1.0f - dist / Light.PointLightParam.x);
