@@ -66,6 +66,11 @@ void Multilobby_Update(void)
 		g_readySent = true;
 	}
 
+	if (Input_IsActionTrigger(INPUT_ACTION_CANCEL) && ms->playerCount > 0 && ms->playerCount < MATCH_MAX_PLAYERS && ms->myId >= 0)
+	{
+		NetClient_Send("FILLBOTS");
+	}
+
 	char buf[512] = {};
 	std::string names;
 	for (int i = 0; i < ms->playerCount; ++i)
@@ -78,7 +83,7 @@ void Multilobby_Update(void)
 	std::snprintf(
 		buf,
 		sizeof(buf),
-		"%s\n人数 %d  待ち列 %d  queue=%d\nEnter: Ready / Esc: 切断\n%s",
+		"%s\n人数 %d  待ち列 %d  queue=%d\nEnter: Ready / BackSpace: Botで4人に埋める / Esc: 切断\n%s",
 		ms->queue ? "次の試合待ち" : "公開ロビー",
 		ms->playerCount,
 		ms->waitingBehind,

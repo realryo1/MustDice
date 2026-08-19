@@ -80,6 +80,7 @@ class Player:
         self.die1 = 0
         self.queue = 0
         self.bound = None
+        self.is_bot = writer is None
 
 
 class Match:
@@ -112,7 +113,7 @@ STATE = ServerState()
 
 
 async def send_line(player: Player, line: str) -> None:
-    if not player.connected:
+    if not player.connected or player.writer is None or player.is_bot:
         return
     try:
         player.writer.write((line + "\n").encode("utf-8"))
@@ -165,8 +166,21 @@ async def fill_wait_from_overflow() -> None:
             log("待機列から繰り上げ %s" % who(nxt))
 
 
+def is_bot(player):
+    return bool(getattr(player, "is_bot", False))
+
+
+def human_players(players):
+    return [p for p in players if not is_bot(p)]
+
+
 def all_ready(players):
-    return 2 <= len(players) <= MAX_PLAYERS and all(p.ready for p in players)
+    humans = human_players(players)
+    return (
+        len(humans) >= 1
+        and 2 <= len(players) <= MAX_PLAYERS
+        and all(p.ready for p in players)
+    )
 
 
 def add_round_points(players):
@@ -267,6 +281,31 @@ async def open_bet(match: Match) -> None:
         f"BET_OPEN {match.round} {match.bet} {remain_sec(match.deadline)}",
     )
     log("BET開始 R%s B%s 制限=%ss" % (match.round, match.bet, remain_sec(match.deadline)))
+    await submit_bot_bets(match)
+
+
+def bot_pick():
+    if random.random() < 0.45:
+        return "P", random.randint(2, 12)
+    return "O", random.randint(0, 1)
+
+
+async def submit_bot_bets(match: Match) -> None:
+    changed = False
+    for p in match.players:
+        if not is_bot(p) or p.submitted:
+            continue
+        kind, value = bot_pick()
+        p.kind = kind
+        p.value = value
+        p.submitted = True
+        p.auto = False
+        changed = True
+        log("Bot提出 %s %s %s" % (who(p), kind, value))
+    if changed:
+        await broadcast_match(match, f"BET_WAIT {submitted_mask(match.players)}")
+    if match.players and all(p.submitted for p in match.players):
+        asyncio.create_task(resolve_job(match))
 
 
 async def resolve_job(match: Match) -> None:
@@ -410,6 +449,27 @@ def name_taken_connected(name: str) -> bool:
     return False
 
 
+def fill_bots_into(lobby):
+    added = 0
+    n = 1
+    while len(lobby) < MAX_PLAYERS:
+        name = "Bot%d" % n
+        while name_taken_connected(name):
+            n += 1
+            name = "Bot%d" % n
+        bot = Player(None)
+        bot.is_bot = True
+        bot.name = name
+        bot.ready = True
+        bot.connected = True
+        bot.player_id = len(lobby)
+        lobby.append(bot)
+        added += 1
+        n += 1
+        log("Bot入場 %s" % who(bot))
+    return added
+
+
 async def place_new_player(player: Player) -> None:
     if STATE.match is not None:
         if len(STATE.wait_lobby) < MAX_PLAYERS:
@@ -446,7 +506,7 @@ async def drop_player(player: Player) -> None:
     player.connected = False
     if STATE.match and player in STATE.match.players:
         log("切断(試合中スロット保持) %s" % who(player))
-        if not any(p.connected for p in STATE.match.players):
+        if not any(p.connected for p in human_players(STATE.match.players)):
             log("全員切断のため試合破棄")
             await finish_match()
         return
@@ -454,7 +514,10 @@ async def drop_player(player: Player) -> None:
         STATE.open_lobby.remove(player)
         for i, p in enumerate(STATE.open_lobby):
             p.player_id = i
-        await send_lobby(STATE.open_lobby, len(STATE.overflow), 0)
+        if not human_players(STATE.open_lobby):
+            STATE.open_lobby = []
+        else:
+            await send_lobby(STATE.open_lobby, len(STATE.overflow), 0)
         log("切断 オープンロビー %s 残り=%s" % (who(player), len(STATE.open_lobby)))
         return
     if player in STATE.wait_lobby:
@@ -462,6 +525,8 @@ async def drop_player(player: Player) -> None:
         for i, p in enumerate(STATE.wait_lobby):
             p.player_id = i
         await fill_wait_from_overflow()
+        if not human_players(STATE.wait_lobby):
+            STATE.wait_lobby = [p for p in STATE.wait_lobby if not is_bot(p)]
         await send_lobby(STATE.wait_lobby, len(STATE.overflow), 1)
         log("切断 待機ロビー %s 残り=%s" % (who(player), len(STATE.wait_lobby)))
         return
@@ -530,6 +595,25 @@ async def handle_line(player: Player, line: str) -> None:
             await try_start_match()
         elif player in STATE.wait_lobby:
             await send_lobby(STATE.wait_lobby, len(STATE.overflow), 1)
+        return
+    if cmd == "FILLBOTS":
+        if STATE.match is not None and player in STATE.match.players:
+            return
+        lobby = None
+        queue_flag = 0
+        if player in STATE.open_lobby:
+            lobby = STATE.open_lobby
+            queue_flag = 0
+        elif player in STATE.wait_lobby:
+            lobby = STATE.wait_lobby
+            queue_flag = 1
+        if lobby is None:
+            return
+        added = fill_bots_into(lobby)
+        log("FILLBOTS %s 追加=%s 人数=%s" % (who(player), added, len(lobby)))
+        await send_lobby(lobby, len(STATE.overflow), queue_flag)
+        if lobby is STATE.open_lobby:
+            await try_start_match()
         return
     if cmd == "BET":
         if STATE.match is None or player not in STATE.match.players:

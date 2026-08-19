@@ -43,7 +43,7 @@ player_name: Player
 
 ## 試合ルール
 
-- 2〜4人。公開ロビーにいる全員が Ready で開始（2人未満は開始しない）
+- 2〜4人。公開ロビーにいる全員が Ready で開始（人間1人以上かつ合計2人以上）。4人未満のときは `FILLBOTS` で Bot を足して4人にできる
 - 3ラウンド、1ラウンド3ベット
 - A役・B役の得点はソロと同じ（`bet_logic`）。出目はベットごとにサーバーが 1 回だけ 2d6 し、全員が同じ出目を見る
 - 制限時間 18 秒。未提出は B役ランダム。切断中も自動選択で継続。ただし全員が切断したら試合は破棄し待ち受け（公開ロビー）へ戻す
@@ -86,7 +86,7 @@ flowchart TB
 
 ## プロトコル（TCP・1行・UTF-8）
 
-クライアント: `HELLO name` / `READY` / `BET P 2-12` / `BET O 1|0`
+クライアント: `HELLO name` / `READY` / `FILLBOTS` / `BET P 2-12` / `BET O 1|0`
 
 サーバー: `WELCOME` `LOBBY` `MATCH_START` `BET_OPEN round bet remainSec` `BET_WAIT` `RESOLVE` `ROUND_END` `MATCH_END` `SNAP` `ERR`
 
