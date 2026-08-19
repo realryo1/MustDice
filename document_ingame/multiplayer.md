@@ -90,6 +90,8 @@ flowchart TB
 
 サーバー: `WELCOME` `LOBBY` `MATCH_START` `BET_OPEN round bet remainSec` `BET_WAIT` `RESOLVE` `ROUND_END` `MATCH_END` `SNAP` `ERR`
 
+`RESOLVE` の出目はベット共通。クライアントはセッションの `die0`/`die1` で同じロールを表示する。
+
 名前に空白は不可。接続中の重複名は `ERR NAME`。
 
 ## サーバー権威

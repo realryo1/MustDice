@@ -205,18 +205,16 @@ static void Multi_RefreshUi(void)
 		hint = "停止待ち";
 		break;
 	case MULTI_PHASE_SHOW:
-		if (me >= 0)
-		{
-			std::snprintf(
-				detail,
-				sizeof(detail),
-				"出目 %d+%d  今回 %+d  ラウンド %d",
-				ms->players[me].die0,
-				ms->players[me].die1,
-				ms->players[me].lastScore,
-				ms->players[me].roundScore
-			);
-		}
+		std::snprintf(
+			detail,
+			sizeof(detail),
+			"共通出目 %d+%d=%d  今回 %+d  ラウンド %d",
+			ms->die0,
+			ms->die1,
+			ms->die0 + ms->die1,
+			(me >= 0 && me < MATCH_MAX_PLAYERS) ? ms->players[me].lastScore : 0,
+			(me >= 0 && me < MATCH_MAX_PLAYERS) ? ms->players[me].roundScore : 0
+		);
 		hint = "次のベットを待機";
 		break;
 	case MULTI_PHASE_ROUND:
@@ -323,17 +321,11 @@ void Multigame_Update(void)
 		}
 	}
 
-	const int me = ms->myId;
-	if (me >= 0 && me < MATCH_MAX_PLAYERS)
+	if (ms->die0 > 0 && ms->die1 > 0 && (ms->die0 != g_seenDie0 || ms->die1 != g_seenDie1) && !g_rollStarted)
 	{
-		const int d0 = ms->players[me].die0;
-		const int d1 = ms->players[me].die1;
-		if (d0 > 0 && d1 > 0 && (d0 != g_seenDie0 || d1 != g_seenDie1) && !g_rollStarted)
-		{
-			g_seenDie0 = d0;
-			g_seenDie1 = d1;
-			Multi_BeginDiceRoll(d0, d1);
-		}
+		g_seenDie0 = ms->die0;
+		g_seenDie1 = ms->die1;
+		Multi_BeginDiceRoll(ms->die0, ms->die1);
 	}
 
 	if (!g_betInputArmed)

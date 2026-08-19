@@ -82,6 +82,8 @@ void MatchSession_ApplyLine(const char* line)
 		g_match.submittedMask = 0;
 		g_match.inMatch = 1;
 		g_match.roundBoard = 0;
+		g_match.die0 = 0;
+		g_match.die1 = 0;
 		for (int i = 0; i < MATCH_MAX_PLAYERS; ++i)
 		{
 			g_match.players[i].lastRank = 0;
@@ -97,22 +99,36 @@ void MatchSession_ApplyLine(const char* line)
 	{
 		const int n = ToInt(t[1]);
 		int cursor = 2;
+		g_match.die0 = 0;
+		g_match.die1 = 0;
 		for (int i = 0; i < n && cursor + 7 < static_cast<int>(t.size()); ++i)
 		{
 			const int id = ToInt(t[cursor]);
+			const int die0 = ToInt(t[cursor + 3]);
+			const int die1 = ToInt(t[cursor + 4]);
+			if (g_match.die0 == 0 && g_match.die1 == 0 && die0 > 0 && die1 > 0)
+			{
+				g_match.die0 = die0;
+				g_match.die1 = die1;
+			}
 			if (id >= 0 && id < MATCH_MAX_PLAYERS)
 			{
 				MatchPlayerView& p = g_match.players[id];
 				p.playerId = id;
 				p.kind = (t[cursor + 1] == "P") ? 1 : 2;
 				p.value = ToInt(t[cursor + 2]);
-				p.die0 = ToInt(t[cursor + 3]);
-				p.die1 = ToInt(t[cursor + 4]);
+				p.die0 = g_match.die0;
+				p.die1 = g_match.die1;
 				p.lastScore = ToInt(t[cursor + 5]);
 				p.roundScore = ToInt(t[cursor + 6]);
 				p.autoSelect = ToInt(t[cursor + 7]);
 			}
 			cursor += 8;
+		}
+		for (int i = 0; i < MATCH_MAX_PLAYERS; ++i)
+		{
+			g_match.players[i].die0 = g_match.die0;
+			g_match.players[i].die1 = g_match.die1;
 		}
 		g_match.playerCount = n;
 	}

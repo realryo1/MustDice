@@ -36,6 +36,8 @@ struct MatchSession
 	int matchEnded;
 	int roundBoard;
 	int lastErr; // 1 NAME, 2 other
+	int die0;
+	int die1;
 	MatchPlayerView players[MATCH_MAX_PLAYERS];
 };
 
