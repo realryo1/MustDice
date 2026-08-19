@@ -2,6 +2,8 @@
 
 ソロ（`SCENE_GAME`）とは別系統。サーバーなしでもタイトルからローカルプレイできる。
 
+鯖ロジック（試合ルール、出目、得点、順位、ロビー／試合の状態遷移、プロトコルの権威）はすべて [`server/mustdice_server.py`](../server/mustdice_server.py) に収める。`mustdice_admin.py` や `startadmin.sh` には漏らさない。管理側は取得・アップロード・起動・ログだけを担当する。
+
 ## 起動（VPS / Linux）
 
 作業ディレクトリ・tmux・管理画面・ポートは [server.md](server.md)。クライアント用の本番 IP はこの文書に書かない。

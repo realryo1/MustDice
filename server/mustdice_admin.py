@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-# Admin page: GitHub fetch / upload / restart / logs for tmux session mustdice.
-# Does not replace downloadstart.py. Upload overwrites mustdice_server.py on disk.
+# Admin HTTP: GitHub fetch / upload / start game tmux / logs.
+# Hand-placed with startadmin.sh. Game start is only from this browser.
 import base64
 import cgi
 import json
 import os
+import shutil
 import subprocess
 import sys
+import urllib.request
 
 try:
     from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -14,12 +16,14 @@ except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DOWNLOADSTART = os.path.join(HERE, "downloadstart.py")
 TARGET = os.path.join(HERE, "mustdice_server.py")
 TMUX_SESSION = "mustdice"
 DEFAULT_PORT = 8777
 UPLOAD_MAX = 2 * 1024 * 1024
 MARKER = b"def score_pinpoint"
+GITHUB_RAW_URL = (
+    "https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py"
+)
 
 USER = os.environ.get("MUSTDICE_ADMIN_USER", "")
 PASS = os.environ.get("MUSTDICE_ADMIN_PASS", "")
@@ -59,22 +63,6 @@ def capture_logs():
         return "capture failed: %s\n" % e
 
 
-def run_downloadstart(flag):
-    cmd = [sys.executable, DOWNLOADSTART, flag]
-    try:
-        proc = subprocess.Popen(
-            cmd,
-            cwd=HERE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        out, _ = proc.communicate()
-        text = (out or b"").decode("utf-8", errors="replace")
-        return proc.returncode, text
-    except Exception as e:
-        return 1, str(e)
-
-
 def save_server_bytes(data):
     if not data or len(data) > UPLOAD_MAX:
         return False, "file empty or too large"
@@ -90,6 +78,40 @@ def save_server_bytes(data):
         f.write(text.encode("utf-8"))
     os.replace(tmp, TARGET)
     return True, "wrote %s (%s bytes)\n" % (TARGET, len(text.encode("utf-8")))
+
+
+def fetch_from_github():
+    try:
+        with urllib.request.urlopen(GITHUB_RAW_URL, timeout=20) as resp:
+            data = resp.read()
+    except Exception as e:
+        return False, "fetch failed: %s\n" % e
+    return save_server_bytes(data)
+
+
+def start_game_detached():
+    if shutil.which("tmux") is None:
+        return False, "tmux not found\n"
+    if not os.path.isfile(TARGET):
+        return False, "missing %s\n" % TARGET
+    if tmux_running():
+        subprocess.call(["tmux", "kill-session", "-t", TMUX_SESSION])
+    rc = subprocess.call(
+        [
+            "tmux",
+            "new-session",
+            "-d",
+            "-s",
+            TMUX_SESSION,
+            "-c",
+            HERE,
+            sys.executable,
+            TARGET,
+        ]
+    )
+    if rc != 0:
+        return False, "tmux new-session failed\n"
+    return True, "started detached session %s\n" % TMUX_SESSION
 
 
 PAGE = """<!DOCTYPE html>
@@ -111,7 +133,7 @@ pre { background: #000; color: #9f9; padding: 12px; overflow: auto; max-height: 
 <p class="status">ゲーム tmux (<code>mustdice</code>): <strong id="st">...</strong></p>
 <p>
 <button type="button" id="fetch">GitHubの最新を取得</button>
-<button type="button" id="restart">再起動</button>
+<button type="button" id="restart">起動 / 再起動</button>
 <input type="file" id="file" accept=".py">
 <button type="button" id="upload">アップロード</button>
 </p>
@@ -227,12 +249,12 @@ class Handler(BaseHTTPRequestHandler):
             self._unauthorized()
             return
         if self.path == "/fetch":
-            code, out = run_downloadstart("--fetch")
-            self._json(200, {"ok": code == 0, "output": out})
+            ok, out = fetch_from_github()
+            self._json(200, {"ok": ok, "output": out})
             return
         if self.path == "/restart":
-            code, out = run_downloadstart("--restart")
-            self._json(200, {"ok": code == 0, "output": out})
+            ok, out = start_game_detached()
+            self._json(200, {"ok": ok, "output": out})
             return
         if self.path == "/upload":
             try:
@@ -272,10 +294,6 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     if not USER:
         sys.stderr.write("Set MUSTDICE_ADMIN_USER before start.\n")
-        sys.stderr.flush()
-        sys.exit(1)
-    if not os.path.isfile(DOWNLOADSTART):
-        sys.stderr.write("missing %s\n" % DOWNLOADSTART)
         sys.stderr.flush()
         sys.exit(1)
     try:

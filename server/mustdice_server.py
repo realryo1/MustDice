@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # MustDice dedicated match server (stdlib asyncio only).
+# てすと
 from __future__ import annotations
 
 import asyncio

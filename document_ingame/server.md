@@ -4,45 +4,43 @@
 
 ## VPS 本体を触れない人へ
 
-SSH や作業ディレクトリに入れない場合、やることは **ブラウザの管理画面だけ** で足りる。試合ロジックのファイルを VPS 上で直接編集する必要はない。
+SSH や作業ディレクトリに入れない場合、やることは **ブラウザの管理画面だけ** で足りる。試合ロジックのファイルを VPS 上で直接編集する必要はない。試合サーバーの起動もブラウザから行う。
 
-いまの構成では次の3つが分かれている。
+いまの構成では次の2つが分かれている。
 
 | 層 | 何か | 触れない人がやること |
 | --- | --- | --- |
-| 管理画面 | `mustdice_admin.py`（常時起動の Web） | ブラウザでログを見る。ボタンで GitHub 取得・再起動・アップロード |
-| 起動・取得 | `downloadstart.py` | 触らない。管理画面のボタンが代わりに呼ぶ |
+| 管理画面 | `mustdice_admin.py`（常時起動の Web） | ブラウザでログを見る。ボタンで GitHub 取得・起動／再起動・アップロード |
 | 試合ロジック | `mustdice_server.py` | 本リポジトリへ直接 push できない人は、管理画面からファイルをアップロードする |
 
 流れはこうなる。
 
-1. ディスク上の本体を更新する（どちらか）
+1. ディスク上の本体を更新する（どちらか。初回は必須）
    - **GitHubの最新を取得**（`master` の `mustdice_server.py`）
    - **アップロード**（手元の `mustdice_server.py`。PR なしで VPS だけ差し替えられる）
-2. 管理画面で **再起動**（ディスク上の本体で試合プロセスだけ作り直す。接続中の試合は切れる）
+2. 管理画面で **起動 / 再起動**（ディスク上の本体で試合プロセスを作り直す。接続中の試合は切れる）
 
-アップロードや GitHub 取得はディスクだけ更新する。動いている試合はそのまま。反映するには再起動が必要。アップロードした本体は GitHub の `master` と違うことがある。
+アップロードや GitHub 取得はディスクだけ更新する。動いている試合はそのまま。反映するには起動／再起動が必要。アップロードした本体は GitHub の `master` と違うことがある。
 
-管理画面のプロセスと、試合サーバーのプロセスは別。再起動しても管理画面は落ちない。管理画面そのものや `downloadstart.py` を更新したいときだけ、VPS に入れる人が手でファイルを置き直す。
+管理画面のプロセスと、試合サーバーのプロセスは別。試合を再起動しても管理画面は落ちない。管理画面そのものを更新したいときだけ、VPS に入れる人が `startadmin.sh` と `mustdice_admin.py` を手で置き直す。
 
-ブラウザ: `http://（VPSのホスト）:8777/`  
-認証の省略時はユーザー名 `admin`、パスワード空（VPS 側で変えてある場合はその値）。
+URL、ユーザー名、パスワードは開発Discordに記載。
 
 以下は VPS に入れる人向けの構成・起動手順。
 
+---
+
 ## 全体像
 
-ゲーム本体と管理サイトは別プロセス・別 tmux・別ポート。
+ゲーム本体と管理サイトは別プロセス・別 tmux・別ポート。試合の取得・起動は管理サイトだけが行う。
 
 ```mermaid
 flowchart LR
-  sshGame[SSH python3 downloadstart.py] --> tmuxGame[tmux mustdice]
-  tmuxGame --> game[mustdice_server.py TCP 7777]
   sshAdmin[SSH sh startadmin.sh] --> tmuxAdmin[tmux mustdiceadmin]
   tmuxAdmin --> admin[mustdice_admin.py TCP 8777]
-  admin -->|"--fetch --restart"| downloadstart[downloadstart.py]
-  admin -->|"upload"| game
-  downloadstart --> tmuxGame
+  admin -->|"fetch / upload"| gameFile[mustdice_server.py]
+  admin -->|"起動 / 再起動"| tmuxGame[tmux mustdice]
+  tmuxGame --> game[mustdice_server.py TCP 7777]
   admin -->|"capture-pane"| tmuxGame
   client[ゲームクライアント] --> game
   browser[ブラウザ Basic認証] --> admin
@@ -57,65 +55,34 @@ VPS で 7777 と 8777 を開ける。プレイヤー側のポート開放は不�
 
 ## 作業ディレクトリ
 
-リポジトリの [`server/`](../server/) を VPS の作業 dir に置く。例:
+手置きは次の2つだけ。試合本体はブラウザから取る。
 
 ```text
 ~/mustdiceserver/
-  downloadstart.py      # 手置き。GitHub 自動取得しない
-  mustdice_admin.py     # 手置き。GitHub 自動取得しない
-  startadmin.sh         # 手置き。GitHub 自動取得しない
-  mustdice_server.py    # GitHub 取得または管理画面のアップロードで上書き
+  startadmin.sh         # 手置き
+  mustdice_admin.py     # 手置き
+  mustdice_server.py    # 管理画面の GitHub 取得またはアップロードで作られる
 ```
 
-手置きファイルは CRLF が残ると壊れる。`sed -i 's/\r$//' *.py *.sh`。直接 `./downloadstart.py` や `./startadmin.sh` で起動しない（shebang の `\r`）。`python3 downloadstart.py` と `sh startadmin.sh` を使う。
+手置きファイルは CRLF が残ると壊れる。`sed -i 's/\r$//' *.py *.sh`。直接 `./startadmin.sh` で起動しない（shebang の `\r`）。`sh startadmin.sh` を使う。
 
-`downloadstart.py` の取得元（認証なし）:
+GitHub 取得元（認証なし）:
 
 `https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py`
-
-取得失敗時は既存の `mustdice_server.py` があればそれを使う。
 
 ## ファイルの役割
 
 | ファイル | 役割 |
 | --- | --- |
 | [`mustdice_server.py`](../server/mustdice_server.py) | 試合の TCP サーバー。出目・得点・順位の権威。stdlib asyncio |
-| [`downloadstart.py`](../server/downloadstart.py) | 本体を GitHub から取り、tmux `mustdice` で起動する |
-| [`mustdice_admin.py`](../server/mustdice_admin.py) | GitHub 取得・アップロード・再起動・ログの HTTP。stdlib `http.server` |
+| [`mustdice_admin.py`](../server/mustdice_admin.py) | GitHub 取得・アップロード・試合起動・ログの HTTP。stdlib `http.server` |
 | [`startadmin.sh`](../server/startadmin.sh) | 管理サイトを tmux `mustdiceadmin` で起動する |
-
-## ゲームサーバーの起動（SSH）
-
-初回だけ作業 dir に `downloadstart.py` を置く。以降:
-
-```text
-cd ~/mustdiceserver
-python3 downloadstart.py
-```
-
-動き: GitHub から本体を取る → 既存の tmux `mustdice` を kill → 新しいセッションにアタッチして `python3 mustdice_server.py`。
-
-- 抜ける: `Ctrl+B` のあと `D`
-- 戻る: `tmux attach -t mustdice`
-- 既にどれかの tmux の中にいると、そのペインが試合サーバーに置き換わる。管理用 `mustdiceadmin` の中では引数なしで実行しない
-- tmux が無い環境では今のシェルで本体を起動する
-
-### downloadstart.py の引数
-
-| 引数 | 用途 |
-| --- | --- |
-| （なし） | SSH からアタッチ起動（上記） |
-| `--fetch` | 本体の再取得だけ。tmux は触らない。管理サイトの「GitHubの最新を取得」 |
-| `--restart` | 取得せず、ディスク上の本体で `mustdice` を detached で作り直す。管理サイトの「再起動」。tmux 必須 |
-| `--detach` | 再取得のあと detached で作り直す。SSH から一括したいとき |
-
-`--restart` / `--detach` はセッション名 `mustdice` だけを作り直す。`mustdiceadmin` は止まらない。
 
 ## 管理画面
 
-常時起動前提。ゲームの再起動では落ちない（別 tmux）。VPS 再起動後は管理サイトもゲームも手で上げ直す。
+常時起動前提。試合の再起動では落ちない（別 tmux）。VPS 再起動後は管理サイトを手で上げ直し、ブラウザから試合を起動する。
 
-### 起動
+### 起動（SSH でやるのはこれだけ）
 
 ```text
 cd ~/mustdiceserver
@@ -126,6 +93,8 @@ sh startadmin.sh
 
 - 抜ける: `Ctrl+B` のあと `D`
 - 戻る: `tmux attach -t mustdiceadmin`
+
+試合サーバーのログを SSH で見るとき: `tmux attach -t mustdice`
 
 ### 認証と URL
 
@@ -147,8 +116,8 @@ HTTP Basic。
 
 - 状態: tmux `mustdice` がいるかどうか
 - ログ: `tmux capture-pane -t mustdice` を数秒ごとに更新
-- **GitHubの最新を取得**: `python3 downloadstart.py --fetch`（試合は止めない）
-- **再起動**: `python3 downloadstart.py --restart`（ディスク上の本体で試合サーバーだけ作り直す。接続中の試合は切れる。GitHub は取り直さない）
+- **GitHubの最新を取得**: `master` の `mustdice_server.py` を作業 dir に保存（試合は止めない）
+- **起動 / 再起動**: ディスク上の本体で試合サーバーを detached で作り直す。接続中の試合は切れる。GitHub は取り直さない。本体がまだ無いときは失敗する
 - **アップロード**: 手元の `mustdice_server.py` を作業 dir に保存（試合は止めない。ファイル名が `mustdice_server.py` でないもの、`def score_pinpoint` が無いものは拒否）
 
 試合サーバーが止まっているときはログ欄にその旨が出る。管理サイト自身の再起動は `sh startadmin.sh`（SSH）で行う。
@@ -156,5 +125,5 @@ HTTP Basic。
 ## やってはいけないこと
 
 - 管理サイトを tmux `mustdice` の中で起動する
-- `mustdiceadmin` の中で引数なしの `python3 downloadstart.py` を実行する（管理ペインが試合サーバーになる）
+- SSH から `python3 mustdice_server.py` を直接起動する（起動は管理画面のボタンだけ）
 - 管理サイトからゲーム本体と同じポート 7777 を使う

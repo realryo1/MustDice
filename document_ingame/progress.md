@@ -57,12 +57,12 @@
 ## マルチ対戦
 
 - [x] シーン枠 `SCENE_MULTILOBBY` / `SCENE_MULTIGAME` / `SCENE_MULTIRESULT`（ソロ `game.cpp` は未改変）
-- [x] Python 専用サーバー `server/mustdice_server.py` と `downloadstart.py`
+- [x] Python 専用サーバー `server/mustdice_server.py`（起動は管理画面）
 - [x] タイトルでローカル / マルチ分岐、接続先は `option.yml`
 - [x] ベットごとの出目は全員共通 2d6
 - [x] 試合は3ラウンド
 - [x] 4人未満を Bot で埋める（`FILLBOTS`）
-- [x] 管理サイト `mustdice_admin.py`（GitHub 取得・アップロード・再起動・ログ、TCP 8777、Basic 認証）
+- [x] 管理サイト `mustdice_admin.py`（GitHub 取得・アップロード・試合起動・ログ、TCP 8777、Basic 認証。手置きは sh と admin.py のみ）
 - [ ] 実機での4人通しプレイ確認
 
 ## ドキュメント
