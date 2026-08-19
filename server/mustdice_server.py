@@ -274,6 +274,7 @@ async def resolve_job(match: Match) -> None:
         if STATE.match is not match or match.phase != "betting":
             return
         match.phase = "resolving"
+        d0, d1, total = roll_2d6()
         for p in match.players:
             if not p.submitted:
                 p.kind = "O"
@@ -281,7 +282,6 @@ async def resolve_job(match: Match) -> None:
                 p.auto = True
                 p.submitted = True
                 log("未提出→自動B役 %s" % who(p))
-            d0, d1, total = roll_2d6()
             p.die0, p.die1 = d0, d1
             if p.kind == "P":
                 p.last_score = score_pinpoint(p.value, total)
@@ -289,6 +289,7 @@ async def resolve_job(match: Match) -> None:
                 p.last_score = score_odd_even(bool(p.value), total)
             p.round_score += p.last_score
     await send_resolve(match)
+    log("共通出目 R%s B%s %s+%s=%s" % (match.round, match.bet, d0, d1, total))
     for p in match.players:
         auto = " auto" if p.auto else ""
         log(

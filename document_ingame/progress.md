@@ -59,6 +59,7 @@
 - [x] シーン枠 `SCENE_MULTILOBBY` / `SCENE_MULTIGAME` / `SCENE_MULTIRESULT`（ソロ `game.cpp` は未改変）
 - [x] Python 専用サーバー `server/mustdice_server.py` と `downloadstart.py`
 - [x] タイトルでローカル / マルチ分岐、接続先は `option.yml`
+- [x] ベットごとの出目は全員共通 2d6
 - [ ] 実機での4人通しプレイ確認
 
 ## ドキュメント
