@@ -6,6 +6,7 @@ import asyncio
 import random
 import time
 from collections import deque
+from datetime import datetime
 
 HOST = "0.0.0.0"
 PORT = 7777
@@ -16,6 +17,26 @@ BET_TIMEOUT_SEC = 18.0
 RESOLVE_WAIT_SEC = 8.0
 ROUND_BREAK_SEC = 4.0
 POINTS = (400, 300, 200, 100)
+
+
+def log(msg):
+    stamp = datetime.now().strftime("%H:%M:%S")
+    print("[%s] %s" % (stamp, msg), flush=True)
+
+
+def peer_of(writer):
+    try:
+        info = writer.get_extra_info("peername")
+        if info:
+            return "%s:%s" % (info[0], info[1])
+    except Exception:
+        pass
+    return "?"
+
+
+def who(player):
+    name = player.name if player.name else "?"
+    return "%s(id=%s)" % (name, player.player_id)
 
 
 def score_pinpoint(pick_sum: int, rolled_sum: int) -> int:
@@ -141,6 +162,7 @@ async def fill_wait_from_overflow() -> None:
             nxt.ready = False
             STATE.wait_lobby.append(nxt)
             await send_line(nxt, f"WELCOME {nxt.player_id} 1")
+            log("待機列から繰り上げ %s" % who(nxt))
 
 
 def all_ready(players):
@@ -244,6 +266,7 @@ async def open_bet(match: Match) -> None:
         match,
         f"BET_OPEN {match.round} {match.bet} {remain_sec(match.deadline)}",
     )
+    log("BET開始 R%s B%s 制限=%ss" % (match.round, match.bet, remain_sec(match.deadline)))
 
 
 async def resolve_job(match: Match) -> None:
@@ -257,6 +280,7 @@ async def resolve_job(match: Match) -> None:
                 p.value = random.randint(0, 1)
                 p.auto = True
                 p.submitted = True
+                log("未提出→自動B役 %s" % who(p))
             d0, d1, total = roll_2d6()
             p.die0, p.die1 = d0, d1
             if p.kind == "P":
@@ -264,7 +288,23 @@ async def resolve_job(match: Match) -> None:
             else:
                 p.last_score = score_odd_even(bool(p.value), total)
             p.round_score += p.last_score
-        await send_resolve(match)
+    await send_resolve(match)
+    for p in match.players:
+        auto = " auto" if p.auto else ""
+        log(
+            "解決 R%s B%s %s %s%s 出目=%s+%s 今回=%s ラウンド=%s"
+            % (
+                match.round,
+                match.bet,
+                who(p),
+                p.kind,
+                auto,
+                p.die0,
+                p.die1,
+                p.last_score,
+                p.round_score,
+            )
+        )
     await asyncio.sleep(RESOLVE_WAIT_SEC)
     async with STATE.lock:
         if STATE.match is not match:
@@ -275,8 +315,22 @@ async def resolve_job(match: Match) -> None:
             for p in match.players:
                 p.total_round_score += p.round_score
             await send_round_end(match)
+            bits = []
+            for p in match.players:
+                bits.append(
+                    "%s %s位 pt=%.2f"
+                    % (who(p), p.last_rank, p.match_point_x100 / 100.0)
+                )
+            log("ラウンド終了 R%s  %s" % (match.round, " / ".join(bits)))
             if match.round >= TOTAL_ROUNDS:
                 await send_match_end(match)
+                bits = []
+                for p in match.players:
+                    bits.append(
+                        "%s pt=%.2f"
+                        % (who(p), p.match_point_x100 / 100.0)
+                    )
+                log("試合終了  %s" % (" / ".join(bits)))
                 await finish_match()
                 return
         else:
@@ -296,6 +350,7 @@ async def resolve_job(match: Match) -> None:
 async def finish_match() -> None:
     match = STATE.match
     STATE.match = None
+    log("試合セッション解放。待機ロビーをオープンへ")
     if match:
         for p in match.players:
             p.player_id = -1
@@ -323,6 +378,8 @@ async def start_match_from_open() -> None:
     STATE.open_lobby = []
     STATE.match = Match(players)
     await broadcast_match(STATE.match, f"MATCH_START {len(players)}")
+    names = ", ".join(who(p) for p in players)
+    log("試合開始 %s人  %s" % (len(players), names))
     await open_bet(STATE.match)
 
 
@@ -360,12 +417,14 @@ async def place_new_player(player: Player) -> None:
             STATE.wait_lobby.append(player)
             await send_line(player, f"WELCOME {player.player_id} 1")
             await send_lobby(STATE.wait_lobby, len(STATE.overflow), 1)
+            log("入場 待機ロビー %s 人数=%s" % (who(player), len(STATE.wait_lobby)))
         else:
             player.queue = 1
             player.player_id = -1
             STATE.overflow.append(player)
             await send_line(player, "WELCOME -1 1")
             await send_line(player, f"LOBBY 0 0 {len(STATE.overflow)} ")
+            log("入場 溢れた待機列 %s 列=%s" % (who(player), len(STATE.overflow)))
         return
     if len(STATE.open_lobby) < MAX_PLAYERS:
         player.player_id = len(STATE.open_lobby)
@@ -373,22 +432,26 @@ async def place_new_player(player: Player) -> None:
         STATE.open_lobby.append(player)
         await send_line(player, f"WELCOME {player.player_id} 0")
         await send_lobby(STATE.open_lobby, len(STATE.overflow) + len(STATE.wait_lobby), 0)
+        log("入場 オープンロビー %s 人数=%s" % (who(player), len(STATE.open_lobby)))
     else:
         player.queue = 1
         STATE.overflow.append(player)
         await send_line(player, "WELCOME -1 1")
         await send_line(player, f"LOBBY 0 0 {len(STATE.overflow)} ")
+        log("入場 溢れた待機列 %s 列=%s" % (who(player), len(STATE.overflow)))
 
 
 async def drop_player(player: Player) -> None:
     player.connected = False
     if STATE.match and player in STATE.match.players:
+        log("切断(試合中スロット保持) %s" % who(player))
         return
     if player in STATE.open_lobby:
         STATE.open_lobby.remove(player)
         for i, p in enumerate(STATE.open_lobby):
             p.player_id = i
         await send_lobby(STATE.open_lobby, len(STATE.overflow), 0)
+        log("切断 オープンロビー %s 残り=%s" % (who(player), len(STATE.open_lobby)))
         return
     if player in STATE.wait_lobby:
         STATE.wait_lobby.remove(player)
@@ -396,9 +459,11 @@ async def drop_player(player: Player) -> None:
             p.player_id = i
         await fill_wait_from_overflow()
         await send_lobby(STATE.wait_lobby, len(STATE.overflow), 1)
+        log("切断 待機ロビー %s 残り=%s" % (who(player), len(STATE.wait_lobby)))
         return
     if player in STATE.overflow:
         STATE.overflow = deque([p for p in STATE.overflow if p is not player])
+        log("切断 待機列 %s 列=%s" % (who(player), len(STATE.overflow)))
 
 
 async def send_snap(player: Player) -> None:
@@ -420,12 +485,15 @@ async def handle_line(player: Player, line: str) -> None:
     if not parts:
         return
     cmd = parts[0].upper()
+    log("受信 %s %s" % (who(player) if player.name else peer_of(player.writer), line))
     if cmd == "HELLO":
         if len(parts) < 2:
+            log("ERR NAME (名前なし) %s" % peer_of(player.writer))
             await send_line(player, "ERR NAME")
             return
         name = parts[1]
         if (not name) or (" " in name) or (len(name) > 16):
+            log("ERR NAME (不正) %s %r" % (peer_of(player.writer), name))
             await send_line(player, "ERR NAME")
             return
         recon = find_reconnect(name)
@@ -435,20 +503,24 @@ async def handle_line(player: Player, line: str) -> None:
             player.bound = recon
             await send_line(recon, f"WELCOME {recon.player_id} 0")
             await send_snap(recon)
+            log("再接続 %s" % who(recon))
             return
         if name_taken_connected(name):
+            log("ERR NAME (使用中) %s" % name)
             await send_line(player, "ERR NAME")
             return
         player.name = name
         await place_new_player(player)
         return
     if not player.name:
+        log("ERR NAME (HELLO前) %s" % peer_of(player.writer))
         await send_line(player, "ERR NAME")
         return
     if cmd == "READY":
         if STATE.match and player in STATE.match.players:
             return
         player.ready = True
+        log("Ready %s" % who(player))
         if player in STATE.open_lobby:
             await send_lobby(STATE.open_lobby, len(STATE.overflow), 0)
             await try_start_match()
@@ -461,35 +533,42 @@ async def handle_line(player: Player, line: str) -> None:
         if STATE.match.phase != "betting" or player.submitted:
             return
         if len(parts) < 3:
+            log("ERR BAD (BET引数不足) %s" % who(player))
             await send_line(player, "ERR BAD")
             return
         kind = parts[1].upper()
         try:
             value = int(parts[2])
         except ValueError:
+            log("ERR BAD (BET数値) %s" % who(player))
             await send_line(player, "ERR BAD")
             return
         if kind == "P":
             if value < 2 or value > 12:
+                log("ERR BAD (A役範囲) %s %s" % (who(player), value))
                 await send_line(player, "ERR BAD")
                 return
             player.kind = "P"
             player.value = value
         elif kind == "O":
             if value not in (0, 1):
+                log("ERR BAD (B役値) %s %s" % (who(player), value))
                 await send_line(player, "ERR BAD")
                 return
             player.kind = "O"
             player.value = value
         else:
+            log("ERR BAD (役種別) %s %s" % (who(player), kind))
             await send_line(player, "ERR BAD")
             return
         player.submitted = True
         player.auto = False
+        log("BET %s %s %s" % (who(player), player.kind, player.value))
         await broadcast_match(
             STATE.match, f"BET_WAIT {submitted_mask(STATE.match.players)}"
         )
         if all(p.submitted for p in STATE.match.players):
+            log("全員提出 → 解決")
             asyncio.create_task(resolve_job(STATE.match))
         return
 
@@ -502,11 +581,13 @@ async def match_timeout_loop() -> None:
             if match is None or match.phase != "betting":
                 continue
             if time.time() >= match.deadline:
+                log("BET制限時間切れ R%s B%s" % (match.round, match.bet))
                 asyncio.create_task(resolve_job(match))
 
 
 async def client_loop(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
     player = Player(writer)
+    log("接続 %s" % peer_of(writer))
     try:
         while True:
             raw = await reader.readline()
@@ -515,8 +596,8 @@ async def client_loop(reader: asyncio.StreamReader, writer: asyncio.StreamWriter
             line = raw.decode("utf-8", errors="replace").strip()
             async with STATE.lock:
                 await handle_line(player, line)
-    except Exception:
-        pass
+    except Exception as exc:
+        log("接続エラー %s %s" % (peer_of(writer), exc))
     finally:
         async with STATE.lock:
             target = player.bound if player.bound is not None else player
@@ -532,7 +613,7 @@ async def main() -> None:
     asyncio.create_task(match_timeout_loop())
     server = await asyncio.start_server(client_loop, HOST, PORT)
     addrs = ", ".join(str(s.getsockname()) for s in server.sockets or [])
-    print(f"MustDice server listening on {addrs}", flush=True)
+    log("MustDice server listening on %s" % addrs)
     async with server:
         await server.serve_forever()
 
