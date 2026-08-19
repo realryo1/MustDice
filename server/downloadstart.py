@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-# Fetch latest mustdice_server.py from GitHub and exec it.
+# Fetch latest mustdice_server.py and run it inside tmux session "mustdice".
 import os
+import shutil
+import subprocess
 import sys
 import urllib.request
 
 GITHUB_RAW_URL = (
     "https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py"
 )
-
+TMUX_SESSION = "mustdice"
 HERE = os.path.dirname(os.path.abspath(__file__))
 TARGET = os.path.join(HERE, "mustdice_server.py")
 
 
-def download() -> bool:
+def download():
     try:
         with urllib.request.urlopen(GITHUB_RAW_URL, timeout=20) as resp:
             data = resp.read()
@@ -29,12 +31,51 @@ def download() -> bool:
         return False
 
 
-def main() -> None:
+def exec_server():
+    os.chdir(HERE)
+    os.execv(sys.executable, [sys.executable, TARGET])
+
+
+def tmux_has_session():
+    return (
+        subprocess.call(
+            ["tmux", "has-session", "-t", TMUX_SESSION],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        == 0
+    )
+
+
+def start_in_tmux():
+    if tmux_has_session():
+        subprocess.call(["tmux", "kill-session", "-t", TMUX_SESSION])
+    os.chdir(HERE)
+    os.execvp(
+        "tmux",
+        [
+            "tmux",
+            "new-session",
+            "-s",
+            TMUX_SESSION,
+            "-c",
+            HERE,
+            sys.executable,
+            TARGET,
+        ],
+    )
+
+
+def main():
     ok = download()
     if not ok and not os.path.isfile(TARGET):
         sys.exit(1)
-    os.chdir(HERE)
-    os.execv(sys.executable, [sys.executable, TARGET])
+    if os.environ.get("TMUX"):
+        exec_server()
+    if shutil.which("tmux") is None:
+        print("downloadstart: tmux not found, running in this shell", file=sys.stderr)
+        exec_server()
+    start_in_tmux()
 
 
 if __name__ == "__main__":

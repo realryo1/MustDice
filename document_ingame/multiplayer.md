@@ -21,11 +21,11 @@ cd ~/mustdiceserver
 python3 downloadstart.py
 ```
 
-tmux 例: `tmux new -s mustdice 'python3 /home/ubuntu/mustdiceserver/downloadstart.py'`
+`downloadstart.py` が GitHub から最新本体を取り、`tmux` セッション `mustdice` を（既存なら作り直して）起動する。中に入るので、抜けるときは `Ctrl+B` のあと `D`。戻るときは `tmux attach -t mustdice`。
 
-直接 `./downloadstart.py` で起動しない。Windows 由来の CRLF だと `python3\r` が見つからず失敗する。ファイルは LF 前提。手元で直す場合は `sed -i 's/\r$//' downloadstart.py`。
+直接 `./downloadstart.py` で起動しない。CRLF が残っている場合は `sed -i 's/\r$//' downloadstart.py`。このファイル自体も GitHub 更新後に置き直す（本体だけ自動取得）。
 
-`downloadstart.py` は公開 raw URL `https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py` を取得し、同ディレクトリの `mustdice_server.py` を起動する。認証は使わない。取得失敗時は既存ファイルがあればそれを起動する。
+`downloadstart.py` の取得元は `https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py`。認証なし。取得失敗時は既存の `mustdice_server.py` があればそれを使う。tmux が無い環境では今のシェルで起動する。
 
 サーバーは `0.0.0.0:7777` で待ち受ける。VPS 側で TCP 7777 を開放する。プレイヤー側のポート開放は不要。
 
