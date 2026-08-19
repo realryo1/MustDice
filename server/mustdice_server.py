@@ -105,11 +105,11 @@ async def broadcast_match(match: Match, line: str) -> None:
         await send_line(p, line)
 
 
-def lobby_names(players: list[Player]) -> str:
+def lobby_names(players):
     return " ".join(p.name if p.name else "-" for p in players)
 
 
-def ready_mask(players: list[Player]) -> int:
+def ready_mask(players):
     mask = 0
     for i, p in enumerate(players):
         if p.ready:
@@ -117,7 +117,7 @@ def ready_mask(players: list[Player]) -> int:
     return mask
 
 
-def submitted_mask(players: list[Player]) -> int:
+def submitted_mask(players):
     mask = 0
     for i, p in enumerate(players):
         if p.submitted:
@@ -125,7 +125,7 @@ def submitted_mask(players: list[Player]) -> int:
     return mask
 
 
-async def send_lobby(players: list[Player], waiting_behind: int, queue_flag: int) -> None:
+async def send_lobby(players, waiting_behind, queue_flag):
     count = len(players)
     mask = ready_mask(players)
     line = f"LOBBY {count} {mask} {waiting_behind} {lobby_names(players)}"
@@ -143,11 +143,11 @@ async def fill_wait_from_overflow() -> None:
             await send_line(nxt, f"WELCOME {nxt.player_id} 1")
 
 
-def all_ready(players: list[Player]) -> bool:
+def all_ready(players):
     return 2 <= len(players) <= MAX_PLAYERS and all(p.ready for p in players)
 
 
-def add_round_points(players: list[Player]) -> None:
+def add_round_points(players):
     n = len(players)
     slots = list(POINTS[:n])
     order = sorted(range(n), key=lambda i: players[i].round_score, reverse=True)
@@ -168,7 +168,7 @@ def add_round_points(players: list[Player]) -> None:
         i = j
 
 
-def final_order(players: list[Player]) -> list[int]:
+def final_order(players):
     n = len(players)
 
     def key(i: int):
@@ -333,7 +333,7 @@ async def try_start_match() -> None:
         await start_match_from_open()
 
 
-def find_reconnect(name: str) -> Player | None:
+def find_reconnect(name):
     if STATE.match is None:
         return None
     for p in STATE.match.players:
