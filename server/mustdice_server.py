@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # MustDice dedicated match server (stdlib asyncio only).
-# てすと
 from __future__ import annotations
 
 import asyncio
@@ -20,12 +19,12 @@ ROUND_BREAK_SEC = 4.0
 POINTS = (400, 300, 200, 100)
 
 
-def log(msg):
+def log(msg):  # 時刻付きで標準出力に出す
     stamp = datetime.now().strftime("%H:%M:%S")
     print("[%s] %s" % (stamp, msg), flush=True)
 
 
-def peer_of(writer):
+def peer_of(writer):  # TCP相手の IP:port を文字列にする
     try:
         info = writer.get_extra_info("peername")
         if info:
@@ -35,12 +34,12 @@ def peer_of(writer):
     return "?"
 
 
-def who(player):
+def who(player):  # ログ用に名前と player_id を組む
     name = player.name if player.name else "?"
     return "%s(id=%s)" % (name, player.player_id)
 
 
-def score_pinpoint(pick_sum: int, rolled_sum: int) -> int:
+def score_pinpoint(pick_sum: int, rolled_sum: int) -> int:  # A役（合計目当て）の得点
     pick = min(12, max(2, pick_sum))
     rolled = min(12, max(2, rolled_sum))
     dist = abs(pick - 7)
@@ -49,19 +48,19 @@ def score_pinpoint(pick_sum: int, rolled_sum: int) -> int:
     return int(100.0 * factor + 0.5)
 
 
-def score_odd_even(pick_odd: bool, rolled_sum: int) -> int:
+def score_odd_even(pick_odd: bool, rolled_sum: int) -> int:  # B役（奇偶）の得点
     hit = ((rolled_sum % 2) != 0) == pick_odd
     return 120 if hit else 60
 
 
-def roll_2d6():
+def roll_2d6():  # 2d6 を振り出目と合計を返す
     a = random.randint(1, 6)
     b = random.randint(1, 6)
     return a, b, a + b
 
 
 class Player:
-    def __init__(self, writer: asyncio.StreamWriter):
+    def __init__(self, writer: asyncio.StreamWriter):  # 接続1人分のスロットを初期化する
         self.writer = writer
         self.name = ""
         self.player_id = -1
@@ -85,7 +84,7 @@ class Player:
 
 
 class Match:
-    def __init__(self, players: list):
+    def __init__(self, players: list):  # 公開ロビーの面子で1試合を始める
         self.players = players
         for i, p in enumerate(players):
             p.player_id = i
@@ -102,7 +101,7 @@ class Match:
 
 
 class ServerState:
-    def __init__(self):
+    def __init__(self):  # ロビー・待機列・進行中試合の大域状態
         self.open_lobby = []
         self.wait_lobby = []
         self.overflow = deque()
@@ -113,7 +112,7 @@ class ServerState:
 STATE = ServerState()
 
 
-async def send_line(player: Player, line: str) -> None:
+async def send_line(player: Player, line: str) -> None:  # 人間クライアントへ1行送る
     if not player.connected or player.writer is None or player.is_bot:
         return
     try:
@@ -123,16 +122,16 @@ async def send_line(player: Player, line: str) -> None:
         player.connected = False
 
 
-async def broadcast_match(match: Match, line: str) -> None:
+async def broadcast_match(match: Match, line: str) -> None:  # 試合中の全員へ同じ1行を送る
     for p in match.players:
         await send_line(p, line)
 
 
-def lobby_names(players):
+def lobby_names(players):  # ロビー表示用の名前列を作る
     return " ".join(p.name if p.name else "-" for p in players)
 
 
-def ready_mask(players):
+def ready_mask(players):  # Ready 状態をビットマスクにする
     mask = 0
     for i, p in enumerate(players):
         if p.ready:
@@ -140,7 +139,7 @@ def ready_mask(players):
     return mask
 
 
-def submitted_mask(players):
+def submitted_mask(players):  # ベット提出済みをビットマスクにする
     mask = 0
     for i, p in enumerate(players):
         if p.submitted:
@@ -148,7 +147,7 @@ def submitted_mask(players):
     return mask
 
 
-async def send_lobby(players, waiting_behind, queue_flag):
+async def send_lobby(players, waiting_behind, queue_flag):  # LOBBY 行をその部屋の全員へ送る
     count = len(players)
     mask = ready_mask(players)
     line = f"LOBBY {count} {mask} {waiting_behind} {lobby_names(players)}"
@@ -157,7 +156,7 @@ async def send_lobby(players, waiting_behind, queue_flag):
         await send_line(p, line)
 
 
-async def fill_wait_from_overflow() -> None:
+async def fill_wait_from_overflow() -> None:  # 溢れた列から待機ロビーへ繰り上げる
     while len(STATE.wait_lobby) < MAX_PLAYERS and STATE.overflow:
         nxt = STATE.overflow.popleft()
         if nxt.connected:
@@ -167,15 +166,15 @@ async def fill_wait_from_overflow() -> None:
             log("待機列から繰り上げ %s" % who(nxt))
 
 
-def is_bot(player):
+def is_bot(player):  # Bot スロットかどうか
     return bool(getattr(player, "is_bot", False))
 
 
-def human_players(players):
+def human_players(players):  # Bot を除いた人間だけ返す
     return [p for p in players if not is_bot(p)]
 
 
-def all_ready(players):
+def all_ready(players):  # 人間1人以上かつ2〜4人全員 Ready なら開始可
     humans = human_players(players)
     return (
         len(humans) >= 1
@@ -184,7 +183,7 @@ def all_ready(players):
     )
 
 
-def add_round_points(players):
+def add_round_points(players):  # ラウンド得点順に順位ポイントを加算する（同点は等分）
     n = len(players)
     slots = list(POINTS[:n])
     order = sorted(range(n), key=lambda i: players[i].round_score, reverse=True)
@@ -205,17 +204,17 @@ def add_round_points(players):
         i = j
 
 
-def final_order(players):
+def final_order(players):  # 試合終了時の順位キー（ポイント→1位回数→累計）
     n = len(players)
 
-    def key(i: int):
+    def key(i: int):  # 最終順位の比較キー（同点は player_id で安定）
         p = players[i]
         return (-p.match_point_x100, -p.first_place_count, -p.total_round_score, i)
 
     return sorted(range(n), key=key)
 
 
-async def send_resolve(match: Match) -> None:
+async def send_resolve(match: Match) -> None:  # 1ベットの出目と各人の得点を RESOLVE で送る
     parts = [f"RESOLVE {len(match.players)}"]
     for p in match.players:
         kind = p.kind
@@ -227,7 +226,7 @@ async def send_resolve(match: Match) -> None:
     await broadcast_match(match, " ".join(parts))
 
 
-async def send_round_end(match: Match) -> None:
+async def send_round_end(match: Match) -> None:  # ラウンド終了の順位ポイントを ROUND_END で送る
     parts = [f"ROUND_END {len(match.players)} {match.round}"]
     for p in match.players:
         parts.append(
@@ -236,7 +235,7 @@ async def send_round_end(match: Match) -> None:
     await broadcast_match(match, " ".join(parts))
 
 
-async def send_match_end(match: Match) -> None:
+async def send_match_end(match: Match) -> None:  # 最終順位を MATCH_END で送り同率も付ける
     order = final_order(match.players)
     ranks = [0] * len(match.players)
     for place, idx in enumerate(order, start=1):
@@ -264,14 +263,14 @@ async def send_match_end(match: Match) -> None:
     await broadcast_match(match, " ".join(parts))
 
 
-def remain_sec(deadline: float) -> int:
+def remain_sec(deadline: float) -> int:  # ベット締切までの残り秒（0未満は0）
     left = int(deadline - time.time())
     if left < 0:
         return 0
     return left
 
 
-async def open_bet(match: Match) -> None:
+async def open_bet(match: Match) -> None:  # 次ベットを開き BET_OPEN を送り Bot 提出も走らせる
     match.phase = "betting"
     match.deadline = time.time() + BET_TIMEOUT_SEC
     for p in match.players:
@@ -285,13 +284,13 @@ async def open_bet(match: Match) -> None:
     await submit_bot_bets(match)
 
 
-def bot_pick():
+def bot_pick():  # Bot の A役／B役を乱数で決める
     if random.random() < 0.45:
         return "P", random.randint(2, 12)
     return "O", random.randint(0, 1)
 
 
-async def submit_bot_bets(match: Match) -> None:
+async def submit_bot_bets(match: Match) -> None:  # 未提出 Bot を一括提出し全員揃えば解決へ
     changed = False
     for p in match.players:
         if not is_bot(p) or p.submitted:
@@ -309,7 +308,7 @@ async def submit_bot_bets(match: Match) -> None:
         asyncio.create_task(resolve_job(match))
 
 
-async def resolve_job(match: Match) -> None:
+async def resolve_job(match: Match) -> None:  # 出目確定・得点加算・次ベットまたはラウンド／試合終了
     async with STATE.lock:
         if STATE.match is not match or match.phase != "betting":
             return
@@ -388,7 +387,7 @@ async def resolve_job(match: Match) -> None:
         await open_bet(match)
 
 
-async def finish_match() -> None:
+async def finish_match() -> None:  # 試合を捨て待機を公開ロビーへ戻し必要なら次試合を始める
     match = STATE.match
     STATE.match = None
     log("試合セッション解放。待機ロビーをオープンへ")
@@ -414,7 +413,7 @@ async def finish_match() -> None:
         await start_match_from_open()
 
 
-async def start_match_from_open() -> None:
+async def start_match_from_open() -> None:  # 公開ロビーの面子で MATCH_START し最初のベットを開く
     players = list(STATE.open_lobby)
     STATE.open_lobby = []
     STATE.match = Match(players)
@@ -424,14 +423,14 @@ async def start_match_from_open() -> None:
     await open_bet(STATE.match)
 
 
-async def try_start_match() -> None:
+async def try_start_match() -> None:  # 試合中でなく全員 Ready なら公開ロビーから開始する
     if STATE.match is not None:
         return
     if all_ready(STATE.open_lobby):
         await start_match_from_open()
 
 
-def find_reconnect(name):
+def find_reconnect(name):  # 同名の切断スロットがあれば再接続先として返す
     if STATE.match is None:
         return None
     for p in STATE.match.players:
@@ -440,7 +439,7 @@ def find_reconnect(name):
     return None
 
 
-def name_taken_connected(name: str) -> bool:
+def name_taken_connected(name: str) -> bool:  # 接続中の誰かがその名前を使っているか
     pools = list(STATE.open_lobby) + list(STATE.wait_lobby) + list(STATE.overflow)
     if STATE.match:
         pools += STATE.match.players
@@ -450,7 +449,7 @@ def name_taken_connected(name: str) -> bool:
     return False
 
 
-def fill_bots_into(lobby):
+def fill_bots_into(lobby):  # ロビーが4人になるまで Ready 済み Bot を足す
     added = 0
     n = 1
     while len(lobby) < MAX_PLAYERS:
@@ -471,7 +470,7 @@ def fill_bots_into(lobby):
     return added
 
 
-async def place_new_player(player: Player) -> None:
+async def place_new_player(player: Player) -> None:  # 新規を公開／待機／溢れ列のどれかに入れる
     if STATE.match is not None:
         if len(STATE.wait_lobby) < MAX_PLAYERS:
             player.player_id = len(STATE.wait_lobby)
@@ -503,7 +502,7 @@ async def place_new_player(player: Player) -> None:
         log("入場 溢れた待機列 %s 列=%s" % (who(player), len(STATE.overflow)))
 
 
-async def drop_player(player: Player) -> None:
+async def drop_player(player: Player) -> None:  # 切断処理。試合中はスロット保持、人間がいなければ破棄
     player.connected = False
     if STATE.match and player in STATE.match.players:
         log("切断(試合中スロット保持) %s" % who(player))
@@ -536,7 +535,7 @@ async def drop_player(player: Player) -> None:
         log("切断 待機列 %s 列=%s" % (who(player), len(STATE.overflow)))
 
 
-async def send_snap(player: Player) -> None:
+async def send_snap(player: Player) -> None:  # 再接続者へ試合途中状態 SNAP を送る
     match = STATE.match
     if match is None or player not in match.players:
         return
@@ -550,7 +549,7 @@ async def send_snap(player: Player) -> None:
     )
 
 
-async def handle_line(player: Player, line: str) -> None:
+async def handle_line(player: Player, line: str) -> None:  # クライアント1行（HELLO/READY/FILLBOTS/BET）を処理する
     parts = line.strip().split()
     if not parts:
         return
@@ -662,7 +661,7 @@ async def handle_line(player: Player, line: str) -> None:
         return
 
 
-async def match_timeout_loop() -> None:
+async def match_timeout_loop() -> None:  # ベット制限時間切れで resolve を起こすループ
     while True:
         await asyncio.sleep(0.25)
         async with STATE.lock:
@@ -674,7 +673,7 @@ async def match_timeout_loop() -> None:
                 asyncio.create_task(resolve_job(match))
 
 
-async def client_loop(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+async def client_loop(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:  # 1接続の受信ループ。切断時は drop する
     player = Player(writer)
     log("接続 %s" % peer_of(writer))
     try:
@@ -698,7 +697,7 @@ async def client_loop(reader: asyncio.StreamReader, writer: asyncio.StreamWriter
             pass
 
 
-async def main() -> None:
+async def main() -> None:  # 待ち受けと制限時間ループを起動する
     asyncio.create_task(match_timeout_loop())
     server = await asyncio.start_server(client_loop, HOST, PORT)
     addrs = ", ".join(str(s.getsockname()) for s in server.sockets or [])
