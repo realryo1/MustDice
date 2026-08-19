@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # MustDice dedicated match server (stdlib asyncio only).
+from __future__ import annotations
+
 import asyncio
 import random
 import time
@@ -78,10 +80,10 @@ class Match:
 
 class ServerState:
     def __init__(self):
-        self.open_lobby: list[Player] = []
-        self.wait_lobby: list[Player] = []
-        self.overflow: deque[Player] = deque()
-        self.match: Match | None = None
+        self.open_lobby = []
+        self.wait_lobby = []
+        self.overflow = deque()
+        self.match = None
         self.lock = asyncio.Lock()
 
 
