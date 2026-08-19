@@ -47,7 +47,7 @@ static void Title_RefreshHint(void)
 		std::snprintf(
 			buf,
 			sizeof(buf),
-			"%s ローカル   %s マルチ\n上下で選択 / Enter",
+			"%s ローカル\n%s マルチ\n上下で選択 / Enter",
 			(g_menuIndex == 0) ? ">" : " ",
 			(g_menuIndex == 1) ? ">" : " "
 		);
