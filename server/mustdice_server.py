@@ -445,6 +445,9 @@ async def drop_player(player: Player) -> None:
     player.connected = False
     if STATE.match and player in STATE.match.players:
         log("切断(試合中スロット保持) %s" % who(player))
+        if not any(p.connected for p in STATE.match.players):
+            log("全員切断のため試合破棄")
+            await finish_match()
         return
     if player in STATE.open_lobby:
         STATE.open_lobby.remove(player)

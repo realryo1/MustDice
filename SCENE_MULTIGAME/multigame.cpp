@@ -72,6 +72,7 @@ static int g_seenRound = 0;
 static int g_seenBet = 0;
 static int g_seenDie0 = -1;
 static int g_seenDie1 = -1;
+static bool g_betInputArmed = false;
 static XMFLOAT3 g_diceCameraPos = GAME_DICE_ROLL_CAMERA_POS;
 static XMFLOAT3 g_diceCameraTarget = GAME_DICE_ROLL_CAMERA_TARGET;
 static float g_diceCameraTransitionElapsed = 0.0f;
@@ -122,6 +123,7 @@ static void Multi_BeginDiceRoll(int die0, int die1)
 	const float variation = static_cast<float>(variationIndex) * 0.08f;
 	if (g_pDice0)
 	{
+		g_pDice0->Reset({ -GAME_DICE_POS_X, GAME_DICE_POS_Y, 0.0f });
 		g_pDice0->StartRoll(
 			die0,
 			{ 1.45f + variation, 4.65f + 0.08f * static_cast<float>(die0 % 3), 0.55f - variation },
@@ -134,6 +136,7 @@ static void Multi_BeginDiceRoll(int die0, int die1)
 	}
 	if (g_pDice1)
 	{
+		g_pDice1->Reset({ GAME_DICE_POS_X, GAME_DICE_POS_Y, 0.0f });
 		g_pDice1->StartRoll(
 			die1,
 			{ -1.40f + variation, 4.85f + 0.08f * static_cast<float>(die1 % 3), -0.48f - variation },
@@ -256,6 +259,7 @@ void Multigame_Initialize(void)
 	g_seenBet = 0;
 	g_seenDie0 = -1;
 	g_seenDie1 = -1;
+	g_betInputArmed = false;
 
 	Camera_Initialize();
 	Multi_ResetDiceCamera();
@@ -314,6 +318,7 @@ void Multigame_Update(void)
 			g_rollStarted = false;
 			g_seenDie0 = -1;
 			g_seenDie1 = -1;
+			g_betInputArmed = false;
 			Multi_ResetDiceCamera();
 		}
 	}
@@ -331,8 +336,16 @@ void Multigame_Update(void)
 		}
 	}
 
-	const bool decide = Input_IsActionTrigger(INPUT_ACTION_DECIDE);
-	const bool cancel = Input_IsActionTrigger(INPUT_ACTION_CANCEL);
+	if (!g_betInputArmed)
+	{
+		if (!Input_IsActionDown(INPUT_ACTION_DECIDE) && !Input_IsActionDown(INPUT_ACTION_CANCEL))
+		{
+			g_betInputArmed = true;
+		}
+	}
+
+	const bool decide = g_betInputArmed && Input_IsActionTrigger(INPUT_ACTION_DECIDE);
+	const bool cancel = g_betInputArmed && Input_IsActionTrigger(INPUT_ACTION_CANCEL);
 	const bool back = Input_IsActionTrigger(INPUT_ACTION_BACK);
 	const bool left = Input_IsActionTrigger(INPUT_ACTION_MENU_LEFT);
 	const bool right = Input_IsActionTrigger(INPUT_ACTION_MENU_RIGHT);

@@ -160,6 +160,7 @@ void NetClient_Close(void)
 		g_sock = INVALID_SOCKET;
 	}
 	g_recvBuf.clear();
+	g_lines.clear();
 	g_connectFinished = false;
 	g_connectCancel = false;
 }

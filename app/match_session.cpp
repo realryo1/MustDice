@@ -85,6 +85,8 @@ void MatchSession_ApplyLine(const char* line)
 		for (int i = 0; i < MATCH_MAX_PLAYERS; ++i)
 		{
 			g_match.players[i].lastRank = 0;
+			g_match.players[i].die0 = 0;
+			g_match.players[i].die1 = 0;
 		}
 	}
 	else if (cmd == "BET_WAIT" && t.size() >= 2)
