@@ -62,11 +62,13 @@
 - [x] ベットごとの出目は全員共通 2d6
 - [x] 試合は3ラウンド
 - [x] 4人未満を Bot で埋める（`FILLBOTS`）
+- [x] 管理サイト `mustdice_admin.py`（GitHub 取得・アップロード・再起動・ログ、TCP 8777、Basic 認証）
 - [ ] 実機での4人通しプレイ確認
 
 ## ドキュメント
 
 - [x] [multiplayer.md](multiplayer.md)
+- [x] [server.md](server.md)（VPS 構成・管理画面）
 - [x] [about_game.md](about_game.md)（ルール正本・αルール追記済み）
 - [x] [flowchart.md](flowchart.md)（about_game に合わせて最小整合）
 - [x] [run_session.md](run_session.md)

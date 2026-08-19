@@ -27,6 +27,7 @@
 
 ゲームの要素にかかわるものは[about_game.md](document_ingame/about_game.md)を見る。
 マルチ対戦は[multiplayer.md](document_ingame/multiplayer.md)。
+VPS サーバー構成と管理画面は[server.md](document_ingame/server.md)。
 
 随時更新する進捗管理リスト[progress.md](document_ingame/progress.md)
 

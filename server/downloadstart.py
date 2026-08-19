@@ -66,7 +66,49 @@ def start_in_tmux():
     )
 
 
+def start_detached():
+    if shutil.which("tmux") is None:
+        print("downloadstart: tmux not found", file=sys.stderr)
+        sys.exit(1)
+    if tmux_has_session():
+        subprocess.call(["tmux", "kill-session", "-t", TMUX_SESSION])
+    os.chdir(HERE)
+    rc = subprocess.call(
+        [
+            "tmux",
+            "new-session",
+            "-d",
+            "-s",
+            TMUX_SESSION,
+            "-c",
+            HERE,
+            sys.executable,
+            TARGET,
+        ]
+    )
+    if rc != 0:
+        print("downloadstart: tmux new-session failed", file=sys.stderr)
+    else:
+        print("downloadstart: started detached session", TMUX_SESSION)
+    sys.exit(rc)
+
+
 def main():
+    args = sys.argv[1:]
+    if "--fetch" in args:
+        sys.exit(0 if download() else 1)
+    if "--restart" in args:
+        if not os.path.isfile(TARGET):
+            print("downloadstart: missing", TARGET, file=sys.stderr)
+            sys.exit(1)
+        start_detached()
+        return
+    if "--detach" in args:
+        ok = download()
+        if not ok and not os.path.isfile(TARGET):
+            sys.exit(1)
+        start_detached()
+        return
     ok = download()
     if not ok and not os.path.isfile(TARGET):
         sys.exit(1)

@@ -8,8 +8,8 @@ import time
 from collections import deque
 from datetime import datetime
 
-HOST = "0.0.0.0"
-PORT = 7777
+HOST = "0.0.0.0" #絶対に変えるな
+PORT = 7777 #絶対に変えるな
 MAX_PLAYERS = 4
 BETS_PER_ROUND = 3
 TOTAL_ROUNDS = 3

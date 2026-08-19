@@ -4,30 +4,9 @@
 
 ## 起動（VPS / Linux）
 
-クライアント用の本番 IP はこの文書に書かない。各自がゲーム起動時に入力する。
+作業ディレクトリ・tmux・管理画面・ポートは [server.md](server.md)。クライアント用の本番 IP はこの文書に書かない。
 
-作業ディレクトリ例:
-
-```text
-~/mustdiceserver/
-  downloadstart.py
-  mustdice_server.py    # downloadstart が GitHub から上書き
-```
-
-初回だけリポジトリの [`server/downloadstart.py`](../server/downloadstart.py) を置く。以降:
-
-```text
-cd ~/mustdiceserver
-python3 downloadstart.py
-```
-
-`downloadstart.py` が GitHub から最新本体を取り、`tmux` セッション `mustdice` を（既存なら作り直して）起動する。中に入るので、抜けるときは `Ctrl+B` のあと `D`。戻るときは `tmux attach -t mustdice`。
-
-直接 `./downloadstart.py` で起動しない。CRLF が残っている場合は `sed -i 's/\r$//' downloadstart.py`。このファイル自体も GitHub 更新後に置き直す（本体だけ自動取得）。
-
-`downloadstart.py` の取得元は `https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py`。認証なし。取得失敗時は既存の `mustdice_server.py` があればそれを使う。tmux が無い環境では今のシェルで起動する。
-
-サーバーは `0.0.0.0:7777` で待ち受ける。VPS 側で TCP 7777 を開放する。プレイヤー側のポート開放は不要。
+試合サーバーは `0.0.0.0:7777`。プレイヤー側のポート開放は不要。
 
 ## クライアント
 
