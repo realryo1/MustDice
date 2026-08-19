@@ -89,6 +89,8 @@ void MatchSession_ApplyLine(const char* line)
 			g_match.players[i].lastRank = 0;
 			g_match.players[i].die0 = 0;
 			g_match.players[i].die1 = 0;
+			g_match.players[i].kind = 0;
+			g_match.players[i].value = 0;
 		}
 	}
 	else if (cmd == "BET_WAIT" && t.size() >= 2)

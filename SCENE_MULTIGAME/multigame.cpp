@@ -39,6 +39,9 @@ enum BetKind
 
 static DrawFont* g_pPhaseText = nullptr;
 static DrawFont* g_pStatusText = nullptr;
+static DrawFont* g_pTimerText = nullptr;
+static DrawFont* g_pTimerCaption = nullptr;
+static DrawFont* g_pBetText = nullptr;
 static MultiLineDrawFont* g_pDetailText = nullptr;
 static DrawFont* g_pHintText = nullptr;
 static Dice3D* g_pDice0 = nullptr;
@@ -73,6 +76,7 @@ static int g_seenBet = 0;
 static int g_seenDie0 = -1;
 static int g_seenDie1 = -1;
 static bool g_betInputArmed = false;
+static float g_betRemain = 0.0f;
 static XMFLOAT3 g_diceCameraPos = GAME_DICE_ROLL_CAMERA_POS;
 static XMFLOAT3 g_diceCameraTarget = GAME_DICE_ROLL_CAMERA_TARGET;
 static float g_diceCameraTransitionElapsed = 0.0f;
@@ -151,6 +155,43 @@ static void Multi_BeginDiceRoll(int die0, int die1)
 	Multi_ResetDiceCamera();
 }
 
+static void Multi_FillBetLabel(char* out, size_t outSize)
+{
+	out[0] = '\0';
+	MatchSession* ms = MatchSession_Get();
+	const int me = ms->myId;
+	int kind = 0;
+	int value = 0;
+	if (me >= 0 && me < MATCH_MAX_PLAYERS && (ms->players[me].kind == 1 || ms->players[me].kind == 2))
+	{
+		kind = ms->players[me].kind;
+		value = ms->players[me].value;
+	}
+	else if (g_betKind == BET_KIND_PINPOINT)
+	{
+		kind = 1;
+		value = g_pickSum;
+	}
+	else if (g_betKind == BET_KIND_ODD_EVEN)
+	{
+		if (g_phase == MULTI_PHASE_ODD_EVEN)
+		{
+			std::snprintf(out, outSize, "偶・奇");
+			return;
+		}
+		kind = 2;
+		value = g_pickOdd ? 1 : 0;
+	}
+	if (kind == 1)
+	{
+		std::snprintf(out, outSize, "P%d", value);
+	}
+	else if (kind == 2)
+	{
+		std::snprintf(out, outSize, "%s", (value != 0) ? "奇" : "偶");
+	}
+}
+
 static void Multi_RefreshUi(void)
 {
 	MatchSession* ms = MatchSession_Get();
@@ -166,15 +207,73 @@ static void Multi_RefreshUi(void)
 	std::snprintf(
 		status,
 		sizeof(status),
-		"R%d Bet%d/%d  score %d  pt %.2f  rest %ds",
+		"R%d/%d Bet%d/%d  score %d  pt %.2f",
 		ms->currentRound,
+		3,
 		ms->currentBet,
 		3,
 		myScore,
-		myPts / 100.0f,
-		ms->remainSec
+		myPts / 100.0f
 	);
 	if (g_pStatusText) g_pStatusText->SetText(status);
+
+	const bool betting =
+		g_phase == MULTI_PHASE_BET_SELECT ||
+		g_phase == MULTI_PHASE_PINPOINT ||
+		g_phase == MULTI_PHASE_ODD_EVEN ||
+		g_phase == MULTI_PHASE_WAIT_RESOLVE;
+	if (g_pTimerText)
+	{
+		if (betting)
+		{
+			int sec = static_cast<int>(g_betRemain + 0.999f);
+			if (sec < 0) sec = 0;
+			char timer[16] = {};
+			std::snprintf(timer, sizeof(timer), "%d", sec);
+			g_pTimerText->SetText(timer);
+			if (g_pTimerCaption) g_pTimerCaption->SetText("ラウンド3までに使用");
+			if (sec <= 5)
+			{
+				g_pTimerText->SetColor({ 1.0f, 0.25f, 0.2f, 1.0f });
+				if (g_pTimerCaption) g_pTimerCaption->SetColor({ 1.0f, 0.25f, 0.2f, 1.0f });
+			}
+			else if (sec <= 8)
+			{
+				g_pTimerText->SetColor({ 1.0f, 0.85f, 0.2f, 1.0f });
+				if (g_pTimerCaption) g_pTimerCaption->SetColor({ 1.0f, 0.85f, 0.2f, 1.0f });
+			}
+			else
+			{
+				g_pTimerText->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+				if (g_pTimerCaption) g_pTimerCaption->SetColor({ 0.85f, 0.85f, 0.85f, 1.0f });
+			}
+		}
+		else
+		{
+			g_pTimerText->SetText("");
+			if (g_pTimerCaption) g_pTimerCaption->SetText("");
+		}
+	}
+
+	if (g_pBetText)
+	{
+		const bool showBet =
+			g_phase == MULTI_PHASE_PINPOINT ||
+			g_phase == MULTI_PHASE_ODD_EVEN ||
+			g_phase == MULTI_PHASE_WAIT_RESOLVE ||
+			g_phase == MULTI_PHASE_ROLL ||
+			g_phase == MULTI_PHASE_SHOW;
+		if (showBet)
+		{
+			char bet[16] = {};
+			Multi_FillBetLabel(bet, sizeof(bet));
+			g_pBetText->SetText(bet);
+		}
+		else
+		{
+			g_pBetText->SetText("");
+		}
+	}
 
 	const char* hint = "待機中";
 	char detail[256] = {};
@@ -258,6 +357,7 @@ void Multigame_Initialize(void)
 	g_seenDie0 = -1;
 	g_seenDie1 = -1;
 	g_betInputArmed = false;
+	g_betRemain = 0.0f;
 
 	Camera_Initialize();
 	Multi_ResetDiceCamera();
@@ -265,6 +365,30 @@ void Multigame_Initialize(void)
 	g_pDice1 = new Dice3D({ GAME_DICE_POS_X, GAME_DICE_POS_Y, 0.0f }, GAME_DICE_SIZE);
 	g_pPhaseText = new DrawFont({ SCREEN_X / 2.0f, 50.0f }, 20.0f, 0.0f, { 1,1,1,1 }, "MULTIGAME");
 	g_pStatusText = new DrawFont({ SCREEN_X / 2.0f, 110.0f }, 28.0f, 0.0f, { 1,1,1,1 }, "");
+	g_pTimerText = new DrawFont(
+		{ SCREEN_X - 48.0f, 72.0f },
+		96.0f,
+		0.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		"",
+		TA_END
+	);
+	g_pTimerCaption = new DrawFont(
+		{ SCREEN_X - 48.0f, 128.0f },
+		20.0f,
+		0.0f,
+		{ 0.85f, 0.85f, 0.85f, 1.0f },
+		"",
+		TA_END
+	);
+	g_pBetText = new DrawFont(
+		{ 48.0f, 72.0f },
+		96.0f,
+		0.0f,
+		{ 1.0f, 0.95f, 0.55f, 1.0f },
+		"",
+		TA_START
+	);
 	g_pDetailText = new MultiLineDrawFont({ SCREEN_X / 2.0f, 200.0f }, 24.0f, 0.0f, { 1.0f, 1.0f, 0.85f, 1.0f }, "");
 	g_pHintText = new DrawFont({ SCREEN_X / 2.0f, SCREEN_Y - 50.0f }, 22.0f, 0.0f, { 1,1,1,1 }, "");
 	Multi_RefreshUi();
@@ -317,6 +441,7 @@ void Multigame_Update(void)
 			g_seenDie0 = -1;
 			g_seenDie1 = -1;
 			g_betInputArmed = false;
+			g_betRemain = static_cast<float>(ms->remainSec);
 			Multi_ResetDiceCamera();
 		}
 	}
@@ -326,6 +451,20 @@ void Multigame_Update(void)
 		g_seenDie0 = ms->die0;
 		g_seenDie1 = ms->die1;
 		Multi_BeginDiceRoll(ms->die0, ms->die1);
+	}
+
+	const bool bettingClock =
+		g_phase == MULTI_PHASE_BET_SELECT ||
+		g_phase == MULTI_PHASE_PINPOINT ||
+		g_phase == MULTI_PHASE_ODD_EVEN ||
+		g_phase == MULTI_PHASE_WAIT_RESOLVE;
+	if (bettingClock)
+	{
+		g_betRemain -= 1.0f / static_cast<float>(FPS);
+		if (g_betRemain < 0.0f)
+		{
+			g_betRemain = 0.0f;
+		}
 	}
 
 	if (!g_betInputArmed)
@@ -431,6 +570,9 @@ void Multigame_Draw(void)
 	SetDepthEnable(false);
 	if (g_pPhaseText) g_pPhaseText->Draw();
 	if (g_pStatusText) g_pStatusText->Draw();
+	if (g_pTimerText) g_pTimerText->Draw();
+	if (g_pTimerCaption) g_pTimerCaption->Draw();
+	if (g_pBetText) g_pBetText->Draw();
 	if (g_pDetailText) g_pDetailText->Draw();
 	if (g_pHintText) g_pHintText->Draw();
 }
@@ -442,6 +584,9 @@ void Multigame_Finalize(void)
 	Camera_Finalize();
 	SAFE_DELETE(g_pPhaseText);
 	SAFE_DELETE(g_pStatusText);
+	SAFE_DELETE(g_pTimerText);
+	SAFE_DELETE(g_pTimerCaption);
+	SAFE_DELETE(g_pBetText);
 	SAFE_DELETE(g_pDetailText);
 	SAFE_DELETE(g_pHintText);
 }

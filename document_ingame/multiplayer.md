@@ -44,7 +44,7 @@ player_name: Player
 ## 試合ルール
 
 - 2〜4人。公開ロビーにいる全員が Ready で開始（2人未満は開始しない）
-- 5ラウンド、1ラウンド3ベット
+- 3ラウンド、1ラウンド3ベット
 - A役・B役の得点はソロと同じ（`bet_logic`）。出目はベットごとにサーバーが 1 回だけ 2d6 し、全員が同じ出目を見る
 - 制限時間 18 秒。未提出は B役ランダム。切断中も自動選択で継続。ただし全員が切断したら試合は破棄し待ち受け（公開ロビー）へ戻す
 - 順位ポイント（`matchPointX100`）: 2人なら 400/300、3人なら 400/300/200、4人なら 400/300/200/100。同点は占有スロット合計を等分
@@ -66,7 +66,7 @@ flowchart TB
     WaitReady -->|Yes| Match[SCENE_MULTIGAME]
     Match --> Bets[3ベット サーバー解決]
     Bets --> RoundEnd[ラウンド順位]
-    RoundEnd --> More{5ラウンド済}
+    RoundEnd --> More{3ラウンド済}
     More -->|No| Bets
     More -->|Yes| Result[SCENE_MULTIRESULT]
     Result --> Title
