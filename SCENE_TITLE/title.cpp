@@ -21,6 +21,7 @@ enum TitleMode
 	TITLE_MODE_MENU = 0,
 	TITLE_MODE_IP,
 	TITLE_MODE_NAME,
+	TITLE_MODE_CONNECTING,
 };
 
 static Sprite2D* g_pNaiyo = nullptr;
@@ -53,7 +54,11 @@ static void Title_RefreshHint(void)
 	}
 	else if (g_mode == TITLE_MODE_IP)
 	{
-		std::snprintf(buf, sizeof(buf), "IP: %s_\n数字と. / Enter確定 / Esc戻る", g_ip.c_str());
+		std::snprintf(buf, sizeof(buf), "Host: %s_\n英数字 . - / Enter確定 / Esc戻る", g_ip.c_str());
+	}
+	else if (g_mode == TITLE_MODE_CONNECTING)
+	{
+		std::snprintf(buf, sizeof(buf), "接続中...\n%s\nEscで中止", g_ip.c_str());
 	}
 	else
 	{
@@ -62,19 +67,34 @@ static void Title_RefreshHint(void)
 	g_pHintText->SetText(buf);
 }
 
-static void Title_TypeIp(void)
+static void Title_TypeHost(void)
 {
 	if (Keyboard_IsKeyDownTrigger(KK_BACK) && !g_ip.empty())
 	{
 		g_ip.pop_back();
 	}
-	if (Keyboard_IsKeyDownTrigger(KK_OEMPERIOD) && g_ip.size() < 31)
+	if (g_ip.size() >= 63)
+	{
+		return;
+	}
+	if (Keyboard_IsKeyDownTrigger(KK_OEMPERIOD))
 	{
 		g_ip += '.';
 	}
+	if (Keyboard_IsKeyDownTrigger(KK_OEMMINUS))
+	{
+		g_ip += '-';
+	}
+	for (int i = 0; i < 26; ++i)
+	{
+		if (Keyboard_IsKeyDownTrigger(static_cast<Keyboard_Keys>(KK_A + i)))
+		{
+			g_ip += static_cast<char>('a' + i);
+		}
+	}
 	for (int d = 0; d <= 9; ++d)
 	{
-		if (Keyboard_IsKeyDownTrigger(static_cast<Keyboard_Keys>(KK_D0 + d)) && g_ip.size() < 31)
+		if (Keyboard_IsKeyDownTrigger(static_cast<Keyboard_Keys>(KK_D0 + d)))
 		{
 			g_ip += static_cast<char>('0' + d);
 		}
@@ -153,9 +173,21 @@ void Title_Initialize(void)
 
 void Title_Update(void)
 {
+	if (g_mode != TITLE_MODE_CONNECTING)
+	{
+		bool leftoverOk = false;
+		if (NetClient_TakeConnectFinished(leftoverOk))
+		{
+			if (leftoverOk)
+			{
+				NetClient_Close();
+			}
+		}
+	}
+
 	if (g_mode == TITLE_MODE_IP)
 	{
-		Title_TypeIp();
+		Title_TypeHost();
 		if (Input_IsActionTrigger(INPUT_ACTION_BACK))
 		{
 			g_mode = TITLE_MODE_MENU;
@@ -178,17 +210,35 @@ void Title_Update(void)
 		{
 			OptionYml_Save(g_ip, g_port, g_name);
 			MatchSession_Reset();
-			if (!NetClient_Connect(g_ip.c_str(), g_port))
-			{
-				g_status = NetClient_LastError();
-			}
-			else
+			g_status = "connecting";
+			NetClient_BeginConnect(g_ip.c_str(), g_port);
+			g_mode = TITLE_MODE_CONNECTING;
+		}
+		Title_RefreshHint();
+	}
+	else if (g_mode == TITLE_MODE_CONNECTING)
+	{
+		bool ok = false;
+		if (NetClient_TakeConnectFinished(ok))
+		{
+			if (ok)
 			{
 				char hello[64] = {};
 				std::snprintf(hello, sizeof(hello), "HELLO %s", g_name.c_str());
 				NetClient_Send(hello);
 				SetSceneFade(SCENE_MULTILOBBY);
 			}
+			else
+			{
+				g_status = NetClient_LastError();
+				g_mode = TITLE_MODE_NAME;
+			}
+		}
+		else if (Input_IsActionTrigger(INPUT_ACTION_BACK))
+		{
+			NetClient_CancelConnect();
+			g_status = "cancelled";
+			g_mode = TITLE_MODE_NAME;
 		}
 		Title_RefreshHint();
 	}

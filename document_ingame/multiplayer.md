@@ -18,8 +18,12 @@
 
 ```text
 cd ~/mustdiceserver
-tmux new -s mustdice 'python3 downloadstart.py'
+python3 downloadstart.py
 ```
+
+tmux 例: `tmux new -s mustdice 'python3 /home/ubuntu/mustdiceserver/downloadstart.py'`
+
+直接 `./downloadstart.py` で起動しない。Windows 由来の CRLF だと `python3\r` が見つからず失敗する。ファイルは LF 前提。手元で直す場合は `sed -i 's/\r$//' downloadstart.py`。
 
 `downloadstart.py` は公開 raw URL `https://raw.githubusercontent.com/realryo1/MustDice/master/server/mustdice_server.py` を取得し、同ディレクトリの `mustdice_server.py` を起動する。認証は使わない。取得失敗時は既存ファイルがあればそれを起動する。
 
@@ -27,7 +31,7 @@ tmux new -s mustdice 'python3 downloadstart.py'
 
 ## クライアント
 
-タイトルでローカル / マルチを選ぶ。マルチ時は IP と名前を入力し、実行ディレクトリの `option.yml` に保存する（gitignore。リポジトリに載せない）。
+タイトルでローカル / マルチを選ぶ。マルチ時はホスト（IPv4 またはドメイン）と名前を入力し、実行ディレクトリの `option.yml` に保存する。接続（名前解決を含む）はバックグラウンドで行い、入力中にゲームループは止めない。
 
 ```yaml
 server_ip: （各自入力）

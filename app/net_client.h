@@ -5,6 +5,10 @@
 void NetClient_Startup(void);
 void NetClient_Shutdown(void);
 bool NetClient_Connect(const char* host, int port);
+void NetClient_BeginConnect(const char* host, int port);
+bool NetClient_IsConnecting(void);
+bool NetClient_TakeConnectFinished(bool& outOk);
+void NetClient_CancelConnect(void);
 void NetClient_Close(void);
 bool NetClient_IsConnected(void);
 void NetClient_Send(const char* line);

@@ -16,6 +16,7 @@ def download() -> bool:
     try:
         with urllib.request.urlopen(GITHUB_RAW_URL, timeout=20) as resp:
             data = resp.read()
+        data = data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
         if not data or b"def score_pinpoint" not in data:
             print("downloadstart: fetched data looks invalid", file=sys.stderr)
             return False
